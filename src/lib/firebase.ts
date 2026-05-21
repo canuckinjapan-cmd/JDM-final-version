@@ -33,7 +33,7 @@ import {
   getDownloadURL
 } from "firebase/storage";
 import firebaseConfigData from "../../firebase-applet-config.json";
-import { resolveVehicleData } from "@/data/inventory";
+import { resolveVehicleData, inventory as defaultInventory } from "@/data/inventory";
 
 // Types
 export type VehicleStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD';
@@ -95,13 +95,25 @@ interface FirestoreErrorInfo {
 // Initialization
 export { firebaseConfigData };
 
+const configuredApiKey = (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfigData.apiKey;
+const hasPlaceholderKey = !configuredApiKey || 
+  configuredApiKey.trim() === "" ||
+  configuredApiKey.includes("remixed") || 
+  configuredApiKey.includes("YOUR");
+
+const configuredProjectId = (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId;
+const hasPlaceholderProject = !configuredProjectId || 
+  configuredProjectId.trim() === "" ||
+  configuredProjectId.includes("remixed") || 
+  configuredProjectId.includes("YOUR");
+
 export const firebaseConfig = {
-  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfigData.apiKey,
-  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfigData.authDomain || `${(import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId}.firebaseapp.com`,
-  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId,
-  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfigData.storageBucket || `${(import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId}.appspot.com`,
-  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfigData.messagingSenderId,
-  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || firebaseConfigData.appId,
+  apiKey: hasPlaceholderKey ? "AIzaSyFakeKeyForBypassModeOnly12345" : configuredApiKey,
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfigData.authDomain || `${configuredProjectId || 'jdm-retro-rides-v2'}.firebaseapp.com`,
+  projectId: hasPlaceholderProject ? "jdm-retro-rides-v2" : configuredProjectId,
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfigData.storageBucket || `${configuredProjectId || 'jdm-retro-rides-v2'}.firebasestorage.app`,
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfigData.messagingSenderId || "906100169608",
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || firebaseConfigData.appId || "1:906100169608:web:000e02e82b21d704bfb83d",
   firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || firebaseConfigData.firestoreDatabaseId
 };
 
@@ -188,7 +200,11 @@ const LOCAL_STORAGE_DB_KEY = "jdm_retro_rides_db";
 const BYPASS_FLAG_KEY = "jdm_bypass_firebase";
 
 export const getBypassStatus = () => {
-  return localStorage.getItem(BYPASS_FLAG_KEY) === "true";
+  const stored = localStorage.getItem(BYPASS_FLAG_KEY);
+  if (stored !== null) {
+    return stored === "true";
+  }
+  return holdsPlaceholderConfig();
 };
 
 export const setBypassStatus = (status: boolean) => {
@@ -196,19 +212,34 @@ export const setBypassStatus = (status: boolean) => {
 };
 
 export const holdsPlaceholderConfig = () => {
-  const key = firebaseConfig.apiKey;
-  const project = firebaseConfig.projectId;
+  const key = (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfigData.apiKey;
+  const project = (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId;
   return !key || 
+         key.trim() === "" ||
          key.includes("remixed") || 
          key.includes("YOUR") ||
          !project ||
+         project.trim() === "" ||
          project.includes("remixed") ||
-         project.includes("YOUR");
+         project.includes("YOUR") ||
+         key === "AIzaSyFakeKeyForBypassModeOnly12345";
 };
 
 export const getLocalVehicles = (): Vehicle[] => {
   const data = localStorage.getItem(LOCAL_STORAGE_DB_KEY);
-  return data ? JSON.parse(data) : [];
+  if (data) {
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed && parsed.length > 0) {
+        return parsed;
+      }
+    } catch (e) {
+      console.warn("Failed to parse local vehicles, recreating from default", e);
+    }
+  }
+  const restored = defaultInventory || [];
+  saveLocalVehicles(restored);
+  return restored;
 };
 
 export const saveLocalVehicles = (vehicles: Vehicle[]) => {
