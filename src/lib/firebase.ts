@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { 
   getFirestore, 
   collection, 
@@ -94,12 +94,23 @@ interface FirestoreErrorInfo {
 
 // Initialization
 export { firebaseConfigData };
-const app = initializeApp(firebaseConfigData);
+
+export const firebaseConfig = {
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfigData.apiKey,
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfigData.authDomain || `${(import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId}.firebaseapp.com`,
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId,
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfigData.storageBucket || `${(import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigData.projectId}.appspot.com`,
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfigData.messagingSenderId,
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || firebaseConfigData.appId,
+  firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || firebaseConfigData.firestoreDatabaseId
+};
+
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Handle "(default)" by passing undefined to getFirestore
-const dbId = firebaseConfigData.firestoreDatabaseId === "(default)" || !firebaseConfigData.firestoreDatabaseId 
+const dbId = firebaseConfig.firestoreDatabaseId === "(default)" || !firebaseConfig.firestoreDatabaseId 
   ? undefined 
-  : firebaseConfigData.firestoreDatabaseId;
+  : firebaseConfig.firestoreDatabaseId;
 
 export const db = getFirestore(app, dbId);
 export const auth = getAuth(app);
@@ -185,9 +196,14 @@ export const setBypassStatus = (status: boolean) => {
 };
 
 export const holdsPlaceholderConfig = () => {
-  return !firebaseConfigData.apiKey || 
-         firebaseConfigData.apiKey.includes("remixed") || 
-         firebaseConfigData.projectId.includes("remixed");
+  const key = firebaseConfig.apiKey;
+  const project = firebaseConfig.projectId;
+  return !key || 
+         key.includes("remixed") || 
+         key.includes("YOUR") ||
+         !project ||
+         project.includes("remixed") ||
+         project.includes("YOUR");
 };
 
 export const getLocalVehicles = (): Vehicle[] => {
