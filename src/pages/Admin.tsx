@@ -776,12 +776,13 @@ const Admin = () => {
               <div className="bg-black/40 p-4 border border-bronze/20 rounded-sm space-y-3">
                 <p className="text-[10px] uppercase font-bold text-bronze tracking-widest">Resolution Steps:</p>
                 <ol className="text-[11px] space-y-2 list-decimal pl-4 text-muted-foreground">
-                  <li>Open the <a href={googleCloudProjectUrl} target="_blank" rel="noopener noreferrer" className="text-white underline">Google Auth Overview</a>.</li>
-                  <li>In the left menu, click <strong>"Branding"</strong>.</li>
-                  <li>Enter <code>JDM Retro Rides</code> as the App Name.</li>
-                  <li><strong>CRITICAL:</strong> Select your email in the <strong>"User support email"</strong> dropdown.</li>
-                  <li>Click <strong>Save</strong> at the bottom.</li>
-                  <li>Go back to Firebase and try enabling the provider again.</li>
+                  <li>Open the <a href={googleCloudProjectUrl} target="_blank" rel="noopener noreferrer" className="text-white underline">Google OAuth Consent Screen Console</a>.</li>
+                  <li>Click <strong>"Configure Consent Screen"</strong> or <strong>"Edit App"</strong> (or select <strong>"Branding"</strong> / <strong>"OAuth consent screen"</strong> in the left menu).</li>
+                  <li>In the App Information section, enter <code>JDM Retro Rides</code> as the <strong>App Name</strong>.</li>
+                  <li><strong>CRITICAL:</strong> Select your email in the <strong>"User support email"</strong> dropdown list.</li>
+                  <li>Scroll to the bottom and make sure you enter your email address under <strong>"Developer contact information"</strong>.</li>
+                  <li>Click <strong>"Save and Continue"</strong> (or <strong>"Save"</strong>) at the bottom.</li>
+                  <li>Go back to your Firebase Console and try enabling the provider again.</li>
                 </ol>
               </div>
             </div>
@@ -791,13 +792,13 @@ const Admin = () => {
               <div className="bg-black/40 p-4 border border-white/5 rounded-sm space-y-3">
                 <p className="text-[10px] uppercase font-bold text-white tracking-widest">Console Selection Guide:</p>
                 <ul className="text-[11px] space-y-2 list-disc pl-4 text-muted-foreground">
-                  <li><strong>Edition:</strong> Select <span className="text-bronze">Enterprise Edition</span>.</li>
-                  <li><strong>Database ID:</strong> Select <span className="text-bronze">(default)</span>. If you typed "default", delete it and create one named <code>(default)</code>.</li>
-                  <li><strong>Security Mode:</strong> Select <span className="text-bronze">Start in Production Mode</span>.</li>
+                  <li><strong>Database Mode:</strong> Always select <strong>"Firestore in Native mode"</strong> (NOT Datastore mode).</li>
+                  <li><strong>Database ID:</strong> Select <span className="text-bronze">(default)</span>. If you typed "default", delete it and let it use <code>(default)</code>.</li>
+                  <li><strong>Security Rules Mode:</strong> Choose <strong>"Start in production mode"</strong> (or test mode, as we will override this anyway).</li>
                 </ul>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Once created, go to the <strong>Security</strong> tab and paste the content of <code>firestore.rules</code> from the root of this project.
+                Once created, go to the <strong>Rules</strong> tab in the Firebase Firestore Console and paste the content of <code>firestore.rules</code> from the root of this project.
               </p>
             </div>
 
@@ -1311,8 +1312,8 @@ const Admin = () => {
                 <div className="bg-black/40 p-4 rounded-sm border border-white/5 text-left flex flex-col justify-between">
                   <div className="mb-4">
                     <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-1">Backup & Defaults</span>
-                    <p className="text-[9px] text-muted-foreground leading-relaxed uppercase">
-                      Populate system catalogs with base luxury listings.
+                    <p className="text-[9px] text-[#999999] leading-relaxed uppercase">
+                      Populate system catalogs with default classic JDM legacy listings.
                     </p>
                   </div>
                   <Button
@@ -1322,7 +1323,7 @@ const Admin = () => {
                     className="w-full h-8 text-[9px] font-bold uppercase tracking-widest border-white/10 hover:bg-white hover:text-black cursor-pointer gap-1.5"
                   >
                     {isSeeding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
-                    Sync Base Catalog
+                    Sync JDM Catalog
                   </Button>
                 </div>
               </div>
