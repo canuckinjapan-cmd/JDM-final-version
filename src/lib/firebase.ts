@@ -1,0 +1,255 @@
+import { initializeApp } from "firebase/app";
+import { 
+  getFirestore, 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  query, 
+  orderBy, 
+  where,
+  limit,
+  serverTimestamp,
+  getDoc,
+  writeBatch,
+  Timestamp,
+  FieldValue
+} from "firebase/firestore";
+import { 
+  getAuth, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut,
+  User,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "firebase/auth";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "firebase/storage";
+import firebaseConfigData from "../../firebase-applet-config.json";
+import { resolveVehicleData } from "@/data/inventory";
+
+// Types
+export type VehicleStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD';
+
+export interface Vehicle {
+  id: string;
+  name: string;
+  year: number;
+  chassis: string;
+  img: string;
+  priceJPY: number;
+  mileage: string;
+  mileageKm: number;
+  grade: string;
+  transmission: string;
+  displacementCc: number;
+  displacementLabel: string;
+  status: VehicleStatus;
+  featured: boolean;
+  featuredOrder?: number;
+  stockNumber?: string;
+  description?: string;
+  color?: string;
+  repaired?: string;
+  seatingCapacity?: number;
+  driveSystem?: string;
+  images?: string[];
+  updatedAt?: any;
+  dateAdded?: string;
+  isVisible?: boolean;
+}
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  }
+}
+
+// Initialization
+export { firebaseConfigData };
+const app = initializeApp(firebaseConfigData);
+
+// Handle "(default)" by passing undefined to getFirestore
+const dbId = firebaseConfigData.firestoreDatabaseId === "(default)" || !firebaseConfigData.firestoreDatabaseId 
+  ? undefined 
+  : firebaseConfigData.firestoreDatabaseId;
+
+export const db = getFirestore(app, dbId);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
+
+// Auth Helpers
+export const login = async () => {
+  const provider = new GoogleAuthProvider();
+  return signInWithPopup(auth, provider);
+};
+
+export const loginEmail = async (email: string, pass: string) => {
+  return signInWithEmailAndPassword(auth, email, pass);
+};
+
+export const registerEmail = async (email: string, pass: string) => {
+  return createUserWithEmailAndPassword(auth, email, pass);
+};
+
+export const logout = () => signOut(auth);
+
+export const checkIsAdmin = async (user: User | null): Promise<boolean> => {
+  if (!user) return false;
+  if (getBypassStatus()) return true;
+  
+  // The owner is always an admin
+  const ownerEmail = "canuck.in.japan@gmail.com"; 
+  if (user.email === ownerEmail) return true;
+
+  try {
+    // 1. Check if the user is in the 'users' collection with an 'admin' role
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (userSnap.exists() && (userSnap.data() as any).role === 'admin') {
+      return true;
+    }
+    
+    // 2. Check if the user ID exists in the 'admins' collection
+    const adminRef = doc(db, 'admins', user.uid);
+    const adminSnap = await getDoc(adminRef);
+    
+    return adminSnap.exists();
+  } catch (error) {
+    console.error("Error checking admin status:", error);
+    // Fallback based on email if we can't reach DB but have the user object
+    return user.email === ownerEmail;
+  }
+};
+
+// Firestore Helpers
+export const handleFirestoreError = (error: unknown, operationType: OperationType, path: string | null) => {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: (auth.currentUser as any)?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+};
+
+// Local Persistence Helpers
+const LOCAL_STORAGE_DB_KEY = "jdm_retro_rides_db";
+const BYPASS_FLAG_KEY = "jdm_bypass_firebase";
+
+export const getBypassStatus = () => {
+  return localStorage.getItem(BYPASS_FLAG_KEY) === "true";
+};
+
+export const setBypassStatus = (status: boolean) => {
+  localStorage.setItem(BYPASS_FLAG_KEY, String(status));
+};
+
+export const holdsPlaceholderConfig = () => {
+  return !firebaseConfigData.apiKey || 
+         firebaseConfigData.apiKey.includes("remixed") || 
+         firebaseConfigData.projectId.includes("remixed");
+};
+
+export const getLocalVehicles = (): Vehicle[] => {
+  const data = localStorage.getItem(LOCAL_STORAGE_DB_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+export const saveLocalVehicles = (vehicles: Vehicle[]) => {
+  localStorage.setItem(LOCAL_STORAGE_DB_KEY, JSON.stringify(vehicles));
+};
+
+export const fetchVehicles = async (): Promise<Vehicle[]> => {
+  if (getBypassStatus()) {
+    const local = getLocalVehicles();
+    return local.length > 0 ? local : [];
+  }
+
+  const path = "vehicles";
+  try {
+    const q = query(collection(db, path), orderBy("stockNumber", "asc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...resolveVehicleData(doc.data()) } as Vehicle));
+  } catch (error) {
+    console.warn("fetchVehicles failed with standard sorted query (likely missing index), attempting fallback unsorted fetch:", error);
+    try {
+      const fallbackSnapshot = await getDocs(collection(db, path));
+      const fallbackList = fallbackSnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...resolveVehicleData(doc.data()) 
+      } as Vehicle));
+      
+      // Manually sort in JS Memory to replicate orderBy("stockNumber", "asc")
+      fallbackList.sort((a, b) => (a.stockNumber || "").localeCompare(b.stockNumber || ""));
+      return fallbackList;
+    } catch (fallbackError) {
+      console.error("fetchVehicles fallback query failed too:", fallbackError);
+      handleFirestoreError(error, OperationType.LIST, path);
+      return [];
+    }
+  }
+};
+
+export const statusStyles: Record<VehicleStatus, string> = {
+  AVAILABLE: "border-success/50 text-success bg-success/10",
+  RESERVED: "border-bronze/50 text-bronze bg-bronze/10",
+  SOLD: "border-destructive/50 text-destructive bg-destructive/10",
+};
+
+export { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  query, 
+  orderBy, 
+  where,
+  limit,
+  serverTimestamp,
+  writeBatch,
+  ref,
+  uploadBytes,
+  getDownloadURL
+};

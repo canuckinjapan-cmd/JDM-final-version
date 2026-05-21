@@ -1,11 +1,24 @@
-<div align="center">
+# JDM Retro Rides
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Specialist supplier of legendary Japanese domestic market classics since 1996.
 
-  <h1>Built with AI Studio</h2>
+This platform manages a curated inventory of JDM classics, providing potential buyers with high-quality media, specifications, and history for each vehicle.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Features
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+- **Inventory Showcase**: Filter and sort through a wide range of iconic JDM vehicles.
+- **Detailed Vehicle Overlays**: Full-screen immersive details including high-res galleries and technical specs.
+- **Admin Dashboard**: Secure management system for inventory, images, and sales status.
+- **Multi-Currency Support**: Real-time currency conversion for international buyers.
+- **Responsive Experience**: Optimized for mobile, tablet, and desktop viewing.
 
-</div>
+## Development
+
+- **Framework**: React 19 + TypeScript + Vite.
+- **Styling**: Tailwind CSS 4.
+- **Backend**: Firebase Firestore & Auth.
+- **UI Components**: Radix UI / shadcn.
+
+---
+*Latest Sync: 2026-04-26*
+*Attempting to Sync on 2026-05-11*

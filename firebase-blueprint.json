@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "Vehicle": {
+      "title": "Vehicle Listing",
+      "description": "A car listing in the inventory",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Vehicle name" },
+        "chassis": { "type": "string", "description": "Chassis code (e.g. BNR34)" },
+        "year": { "type": "number", "description": "Manufacturing year" },
+        "img": { "type": "string", "description": "Main image URL" },
+        "priceJPY": { "type": "number", "description": "Price in Japanese Yen" },
+        "mileage": { "type": "string", "description": "Mileage label" },
+        "mileageKm": { "type": "number", "description": "Mileage in km" },
+        "grade": { "type": "string", "description": "Auction grade" },
+        "transmission": { "type": "string", "description": "Transmission type" },
+        "displacementCc": { "type": "number", "description": "Engine displacement in cc" },
+        "displacementLabel": { "type": "string", "description": "Engine displacement label" },
+        "status": { "type": "string", "enum": ["AVAILABLE", "RESERVED", "SOLD"], "description": "Availability status" },
+        "featured": { "type": "boolean", "description": "Whether the vehicle is featured" },
+        "featuredOrder": { "type": "number", "description": "Order for featured vehicles" },
+        "stockNumber": { "type": "string", "description": "Stock identification number" },
+        "dateAdded": { "type": "string", "description": "Date added to inventory" },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "Additional image URLs" },
+        "description": { "type": "string", "description": "Detailed vehicle description" },
+        "color": { "type": "string", "description": "Exterior color" },
+        "repaired": { "type": "string", "description": "Repair history info" },
+        "seatingCapacity": { "type": "number", "description": "Seating capacity" },
+        "driveSystem": { "type": "string", "description": "Drive system (AWD, RWD, etc.)" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["name", "chassis", "year", "img", "priceJPY", "status"]
+    },
+    "User": {
+      "title": "User Profile",
+      "description": "User account information and roles",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "user"] }
+      },
+      "required": ["email", "role"]
+    },
+    "SiteSettings": {
+      "title": "Site Settings",
+      "description": "Global configuration for the website",
+      "type": "object",
+      "properties": {
+        "mainFeatured": {
+          "type": "object",
+          "properties": {
+            "vehicleId": { "type": "string" },
+            "photoUrl": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        },
+        "secondaryFeatured": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vehicleId": { "type": "string" },
+              "photoUrl": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/vehicles/{vehicleId}": {
+      "schema": "Vehicle",
+      "description": "Collection of vehicle listings"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user profiles"
+    },
+    "/admins/{adminId}": {
+      "schema": "User",
+      "description": "Collection of admin user IDs"
+    },
+    "/settings/{settingId}": {
+      "schema": "SiteSettings",
+      "description": "Collection of site configuration documents"
+    }
+  }
+}

@@ -1,0 +1,117 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Global Helpers
+    // ===============================================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "canuck.in.japan@gmail.com" ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // ===============================================================
+    // Entity Validations
+    // ===============================================================
+    
+    function isValidVehicle(data) {
+      let requiredFields = ['name', 'chassis', 'year', 'img', 'priceJPY', 'status'];
+      return data.keys().hasAll(requiredFields) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.chassis is string && data.chassis.size() > 0 && data.chassis.size() <= 100 &&
+             data.year is number && data.year >= 1900 && data.year <= 2100 &&
+             data.img is string && data.img.size() > 0 && data.img.size() <= 2048 &&
+             data.priceJPY is number && data.priceJPY >= 0 &&
+             data.status in ["AVAILABLE", "RESERVED", "SOLD"] &&
+             // Optional fields validation
+             (!('mileage' in data) || (data.mileage is string && data.mileage.size() <= 100)) &&
+             (!('mileageKm' in data) || (data.mileageKm is number && data.mileageKm >= 0)) &&
+             (!('grade' in data) || (data.grade is string && data.grade.size() <= 100)) &&
+             (!('transmission' in data) || (data.transmission is string && data.transmission.size() <= 100)) &&
+             (!('displacementCc' in data) || (data.displacementCc is number)) &&
+             (!('displacementLabel' in data) || (data.displacementLabel is string)) &&
+             (!('featured' in data) || (data.featured is bool)) &&
+             (!('featuredOrder' in data) || (data.featuredOrder is number)) &&
+             (!('stockNumber' in data) || (data.stockNumber is string)) &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 10000)) &&
+             (!('images' in data) || (data.images is list && data.images.size() <= 50)) &&
+             (!('updatedAt' in data) || (data.updatedAt == request.time)) &&
+             (!('color' in data) || (data.color is string)) &&
+             (!('repaired' in data) || (data.repaired is string)) &&
+             (!('seatingCapacity' in data) || (data.seatingCapacity is number)) &&
+             (!('driveSystem' in data) || (data.driveSystem is string)) &&
+             (!('dateAdded' in data) || (data.dateAdded is string));
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /vehicles/{vehicleId} {
+      allow read: if true;
+      
+      allow create: if isAdmin() && 
+                      isValidId(vehicleId) && 
+                      isValidVehicle(incoming()) && 
+                      incoming().keys().size() <= 25;
+
+      allow update: if isAdmin() && 
+                      isValidVehicle(incoming()) && 
+                      incoming().chassis == existing().chassis &&
+                      (
+                        incoming().diff(existing()).affectedKeys().hasOnly([
+                          'name', 'year', 'img', 'priceJPY', 'status', 'mileage', 
+                          'mileageKm', 'grade', 'transmission', 'displacementCc', 
+                          'displacementLabel', 'featured', 'featuredOrder', 
+                          'stockNumber', 'description', 'images', 'updatedAt',
+                          'color', 'repaired', 'seatingCapacity', 'driveSystem', 'dateAdded'
+                        ])
+                      );
+      
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn() && (request.auth.uid == adminId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

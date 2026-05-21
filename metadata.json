@@ -1,0 +1,8 @@
+{
+  "name": "JDM Retro Rides",
+  "description": "Premium JDM car exporter platform with real-time inventory management, Firebase integration, and secure admin controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
