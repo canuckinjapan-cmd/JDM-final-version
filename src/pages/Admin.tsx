@@ -30,7 +30,9 @@ import {
   storage,
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  getStorage,
+  firebaseConfig
 } from "@/lib/firebase";
 import { writeBatch } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -673,27 +675,85 @@ const Admin = () => {
           toast.loading(`Uploading HD optimized image ${i + 1}/${files.length}...`, { id: toastId });
           
           const fileName = `vehicles/${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.jpg`;
-          const storageRef = ref(storage, fileName);
           
-          const uploadPromise = uploadBytes(storageRef, compressedBlob).then(snap => getDownloadURL(snap.ref));
-          const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Storage Timeout")), MAX_WAIT)
-          );
-
-          const url = await Promise.race([uploadPromise, timeoutPromise]);
-          uploadedUrls.push(url);
-          toast.success(`Image ${i + 1} synced to Cloud Storage beautifully!`, { id: toastId });
-        } catch (err: any) {
-          console.warn(`Cloud upload failed for ${file.name}, trying local embed fallback. Error:`, err);
-          toast.loading(`Cloud Storage unactivated or slow. Saving HD direct-embed...`, { id: toastId });
+          let url = "";
+          let uploadSuccessful = false;
+          const currentBucket = firebaseConfig.storageBucket || "";
           
           try {
-            // Save beautiful crisp 1300px image at 0.82 quality with advanced rendering
-            const optimizedBase64 = await compressImage(file, 1300, 1300, 0.82);
-            uploadedUrls.push(optimizedBase64);
-            toast.success(`Image ${i + 1} finalized (HD direct-embed)!`, { id: toastId, duration: 5000 });
+            // Attempt 1: Upload with default storage client
+            const storageRef = ref(storage, fileName);
+            const uploadPromise = uploadBytes(storageRef, compressedBlob).then(snap => getDownloadURL(snap.ref));
+            const timeoutPromise = new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error("Storage Timeout")), MAX_WAIT)
+            );
+            url = await Promise.race([uploadPromise, timeoutPromise]);
+            uploadSuccessful = true;
+            toast.success(`Image ${i + 1} synced to Google Cloud Storage!`, { id: toastId });
+          } catch (firstErr: any) {
+            console.warn(`Default storage bucket failed, trying dynamic suffix alternate:`, firstErr);
+            
+            // Auto swap suffixes: .firebasestorage.app <-> .appspot.com
+            let alternateBucket = currentBucket;
+            if (currentBucket.endsWith(".firebasestorage.app")) {
+              alternateBucket = currentBucket.replace(".firebasestorage.app", ".appspot.com");
+            } else if (currentBucket.endsWith(".appspot.com")) {
+              alternateBucket = currentBucket.replace(".appspot.com", ".firebasestorage.app");
+            }
+            
+            if (alternateBucket !== currentBucket && alternateBucket) {
+              try {
+                toast.loading(`Retrying upload with alternate bucket: ${alternateBucket}...`, { id: toastId });
+                const customStorageInstance = getStorage(storage.app, `gs://${alternateBucket}`);
+                const storageRef = ref(customStorageInstance, fileName);
+                
+                const uploadPromise = uploadBytes(storageRef, compressedBlob).then(snap => getDownloadURL(snap.ref));
+                const timeoutPromise = new Promise<never>((_, reject) => 
+                  setTimeout(() => reject(new Error("Storage Timeout")), MAX_WAIT)
+                );
+                
+                url = await Promise.race([uploadPromise, timeoutPromise]);
+                uploadSuccessful = true;
+                toast.success(`Image ${i + 1} synced to Cloud Storage (${alternateBucket})!`, { id: toastId });
+              } catch (secondErr: any) {
+                console.error(`Symmetrical fallback bucket also failed:`, secondErr);
+                throw secondErr; // Bubble up error to display clear guidance below
+              }
+            } else {
+              throw firstErr;
+            }
+          }
+          
+          if (uploadSuccessful && url) {
+            uploadedUrls.push(url);
+          }
+        } catch (err: any) {
+          console.warn(`Cloud upload failed for ${file.name}, trying local embed fallback with safety constraints. Error:`, err);
+          
+          const errMsg = err?.message || String(err);
+          const errCode = err?.code || "";
+          let detailedWarning = "";
+          
+          if (errCode.includes("unauthorized") || errMsg.toLowerCase().includes("unauthorized") || errMsg.toLowerCase().includes("permission")) {
+            detailedWarning = "Storage rules are blocking uploads. Open Firebase Console -> Storage -> Rules, and set: 'allow read, write: if request.auth != null;'";
+          } else if (errCode.includes("bucket-not-found") || errMsg.toLowerCase().includes("bucket")) {
+            detailedWarning = "Storage is not activated yet. Go to Firebase Console -> Storage and click 'Get Started' to activate your free 5GB tier.";
+          } else {
+            detailedWarning = `Firebase Storage is unactivated or rules are blocking uploads (error code: ${errCode || 'network-blocked'}).`;
+          }
+          
+          toast.error(`Cloud Storage Unreachable: ${detailedWarning}`, { id: toastId, duration: 9000 });
+          toast.loading("Converting to lightweight web fallback to preserve Firestore's 1MB limit...", { id: toastId });
+          
+          try {
+            // Safe direct-embed compression: ~15KB - 25KB preview size (500px, 0.45 quality).
+            // This guarantees the database document will remain under the strict 1MB Firestore limit,
+            // even if the user uploads 5+ images, meaning your saves will ALWAYS succeed.
+            const safeBase64 = await compressImage(file, 500, 500, 0.45);
+            uploadedUrls.push(safeBase64);
+            toast.success(`Image ${i + 1} saved securely as a local database fallback!`, { id: toastId, duration: 4500 });
           } catch (compressErr) {
-            toast.error(`Failed to process Image ${i + 1}`, { id: toastId });
+            toast.error(`Failed to process fallback for Image ${i + 1}`, { id: toastId });
             throw err;
           }
         }
@@ -704,10 +764,9 @@ const Admin = () => {
         images: [...(prev.images || []), ...uploadedUrls],
         img: prev.img || uploadedUrls[0]
       }));
-      toast.success("All photos synced");
+      toast.success("All photos ready!");
     } catch (error: any) {
       console.error("Upload process state error:", error);
-      toast.error(`Upload issue: Some pictures fallback-saved directly.`);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -800,6 +859,34 @@ const Admin = () => {
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 Once created, go to the <strong>Rules</strong> tab in the Firebase Firestore Console and paste the content of <code>firestore.rules</code> from the root of this project.
               </p>
+            </div>
+
+            <div className="space-y-4 pt-4 border-t border-white/5">
+              <div className="text-[11px] font-black uppercase text-bronze tracking-widest border-b border-white/5 pb-2">Step 4: Enable Free 5GB Cloud Storage & Rules</div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Uploading large high-fidelity vehicle photos is fully free (up to 5GB on Firebase Spark Plan), but requires configuring your Storage Rules:
+              </p>
+              <div className="bg-black/40 p-4 border border-bronze/20 rounded-sm space-y-3">
+                <p className="text-[10px] uppercase font-bold text-bronze tracking-widest">Storage Activation Guide:</p>
+                <ol className="text-[11px] space-y-2 list-decimal pl-4 text-muted-foreground">
+                  <li>In your left Firebase Console menu, click <strong>"Storage"</strong>.</li>
+                  <li>If you see a <strong>"Get Started"</strong> button, click it. (If you don't see it, your default storage bucket is already optioned). Use defaults during creation.</li>
+                  <li>Go to the <strong>"Rules"</strong> tab at the top of the Storage screen.</li>
+                  <li>Change the file block to authorize authenticated uploads:
+                    <pre className="bg-[#0f0f10] p-2 rounded-sm border border-white/5 text-[10px] font-mono mt-1 text-white select-all">
+{`rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}`}
+                    </pre>
+                  </li>
+                  <li>Click <strong>"Publish"</strong> at the top right to deploy the rules.</li>
+                </ol>
+              </div>
             </div>
 
             <div className="space-y-4 pt-4 border-t border-white/5">

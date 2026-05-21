@@ -298,5 +298,6 @@ export {
   writeBatch,
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  getStorage
 };

@@ -359,9 +359,7 @@ const Inventory = () => {
                                 {c.grade}
                               </Badge>
                             </div>
-                            <div className="absolute bottom-4 right-4 mono text-xs px-2 py-1 bg-background/70 backdrop-blur-sm border border-border rounded-sm">
-                              {c.chassis}
-                            </div>
+                            {/* Removed non-editable chassis overlay per user request */}
                           </div>
 
                           <div className="p-6">
