@@ -2,12 +2,14 @@ import carSkyline from "@/assets/car-skyline.jpg";
 import car240z from "@/assets/car-240z.jpg";
 import carSupra from "@/assets/car-supra.jpg";
 import carRx7 from "@/assets/car-rx7.jpg";
+import carAe86 from "@/assets/car-ae86.png";
 
 export const assetMap: Record<string, string> = {
   "car-skyline": carSkyline,
   "car-240z": car240z,
   "car-supra": carSupra,
   "car-rx7": carRx7,
+  "car-ae86": carAe86,
 };
 
 export const resolveVehicleImage = (imgUrl: string): string => {
@@ -19,39 +21,27 @@ export const resolveVehicleImage = (imgUrl: string): string => {
   }
 
   // 2. Handle asset map (imported images)
-  // We check this FIRST to ensure we don't double-resolve known imports.
   for (const [key, importedPath] of Object.entries(assetMap)) {
     if (imgUrl.includes(key)) {
       return importedPath;
     }
   }
 
-  // 3. Prevent double-resolving /assets/ (already has leading slash and base)
-  const base = import.meta.env.BASE_URL || "/";
-  const normalizedBase = base.endsWith("/") ? base : `${base}/`;
-  
-  if (imgUrl.startsWith(normalizedBase + "assets/")) {
-    return imgUrl;
-  }
-
-  // 4. Resolve static assets in /public/assets/
-  let cleanUrl = imgUrl;
-  if (cleanUrl.startsWith("/jdm-design-guru/")) {
-    cleanUrl = cleanUrl.replace("/jdm-design-guru/", "");
-  }
-  
-  // Remove leading slash if any to normalize to "assets/..."
-  if (cleanUrl.startsWith("/")) {
-    cleanUrl = cleanUrl.slice(1);
-  }
-
-  if (cleanUrl.startsWith("assets/")) {
-    // If base is root-relative or empty
-    if (base === './' || base === '' || base === '/') {
-      return `/${cleanUrl}`;
-    }
+  // 3. Prevent double-resolving or clean any existing assets/ path to make it dynamic
+  const assetsIndex = imgUrl.indexOf("assets/");
+  if (assetsIndex !== -1) {
+    const relativePath = imgUrl.substring(assetsIndex); // "assets/1999GTR-blue01.jpg"
     
-    return `${normalizedBase}${cleanUrl}`;
+    // Dynamically retrieve base path from window.location
+    let base = "/";
+    if (typeof window !== "undefined") {
+      const pathname = window.location.pathname;
+      const cleanPath = pathname.endsWith("index.html")
+        ? pathname.substring(0, pathname.lastIndexOf("/"))
+        : pathname;
+      base = cleanPath.endsWith("/") ? cleanPath : `${cleanPath}/`;
+    }
+    return `${base}${relativePath}`;
   }
 
   return imgUrl;
@@ -358,7 +348,7 @@ export const inventory: Vehicle[] = [
   },
   {
     id: "ae86-1985",
-    img: resolveVehicleImage(car240z),
+    img: resolveVehicleImage(carAe86),
     name: "Toyota Sprinter Trueno",
     chassis: "AE86",
     year: 1985,
@@ -377,7 +367,7 @@ export const inventory: Vehicle[] = [
     repaired: "Minor panel repair",
     seatingCapacity: 4,
     driveSystem: "RWD",
-    images: [resolveVehicleImage(car240z)]
+    images: [resolveVehicleImage(carAe86)]
   },
 ];
 

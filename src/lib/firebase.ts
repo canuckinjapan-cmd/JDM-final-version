@@ -231,7 +231,7 @@ export const getLocalVehicles = (): Vehicle[] => {
     try {
       const parsed = JSON.parse(data);
       if (parsed && parsed.length > 0) {
-        return parsed;
+        return parsed.map(resolveVehicleData);
       }
     } catch (e) {
       console.warn("Failed to parse local vehicles, recreating from default", e);
@@ -239,7 +239,7 @@ export const getLocalVehicles = (): Vehicle[] => {
   }
   const restored = defaultInventory || [];
   saveLocalVehicles(restored);
-  return restored;
+  return restored.map(resolveVehicleData);
 };
 
 export const saveLocalVehicles = (vehicles: Vehicle[]) => {
