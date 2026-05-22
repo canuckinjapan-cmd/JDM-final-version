@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -21,13 +22,29 @@ interface ContactFormProps {
 
 const ContactForm = ({ defaultSubject = "", compact = false }: ContactFormProps) => {
   const { toast } = useToast();
+  const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
+
+  const getInitialSubject = () => {
+    const s = (location.state as { subject?: string })?.subject;
+    return s || defaultSubject;
+  };
+
   const [values, setValues] = useState({
     name: "",
     email: "",
-    subject: defaultSubject,
+    subject: getInitialSubject(),
     message: "",
   });
+
+  useEffect(() => {
+    const s = (location.state as { subject?: string })?.subject;
+    if (s) {
+      setValues((prev) => ({ ...prev, subject: s }));
+    } else if (defaultSubject) {
+      setValues((prev) => ({ ...prev, subject: defaultSubject }));
+    }
+  }, [location.state, defaultSubject]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +65,7 @@ const ContactForm = ({ defaultSubject = "", compact = false }: ContactFormProps)
         title: "Message sent",
         description: "We'll reply within 24 hours (JST business hours).",
       });
-      setValues({ name: "", email: "", subject: defaultSubject, message: "" });
+      setValues({ name: "", email: "", subject: (location.state as { subject?: string })?.subject || defaultSubject, message: "" });
     }, 600);
   };
 

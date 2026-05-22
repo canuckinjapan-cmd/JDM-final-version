@@ -375,16 +375,27 @@ const Index = () => {
                             <Info className="w-4 h-4 mr-2 hidden md:block" />
                             View Details
                           </Button>
-                          <Button
-                            asChild
-                            className="flex-1 rounded-sm gradient-bronze hover:opacity-90 transition-opacity h-11 border-0 text-white"
-                            disabled={c.status === "SOLD"}
-                          >
-                            <Link to="/#contact">
-                              <Mail className="w-4 h-4 mr-2 hidden md:block" />
-                              {c.status === "SOLD" ? "Sold" : "Enquire"}
-                            </Link>
-                          </Button>
+                          {c.status === "SOLD" ? (
+                            <Button
+                              disabled
+                              className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
+                            >
+                              Sold
+                            </Button>
+                          ) : (
+                            <Button
+                              asChild
+                              className="flex-1 rounded-sm gradient-bronze hover:opacity-90 transition-opacity h-11 border-0 text-white cursor-pointer"
+                            >
+                              <Link 
+                                to="/#contact"
+                                state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
+                              >
+                                <Mail className="w-4 h-4 mr-2 hidden md:block" />
+                                Enquire
+                              </Link>
+                            </Button>
+                          )}
                         </div>
                     </div>
                   </>
