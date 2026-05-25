@@ -1352,71 +1352,7 @@ service firebase.storage {
           )}
         </div>
 
-        {/* COMPACT DESIGN COLLAPSIBLE DEV & SEED UTILITIES */}
-        <div className="mt-16 border-t border-white/5 pt-10">
-          <div className="flex justify-center">
-            <Button
-              variant="ghost"
-              onClick={() => setShowDevTools(!showDevTools)}
-              className="text-[#999999] hover:text-[#cccccc] text-[9px] font-black uppercase tracking-[0.2em] transition-all gap-2"
-            >
-              <Database className="w-3 h-3 text-bronze/60" />
-              {showDevTools ? "Hide System Console" : "Show System Console & Tools"}
-            </Button>
-          </div>
 
-          {showDevTools && (
-            <div className="mt-6 p-6 max-w-xl mx-auto bg-secondary/15 border border-white/5 rounded-sm space-y-6 text-center">
-              <div className="space-y-1">
-                <div className="text-[10px] font-black text-bronze uppercase tracking-[0.2em]">Developer Console</div>
-                <p className="text-[9px] text-muted-foreground uppercase tracking-widest leading-relaxed">
-                  Toggle environments or synchronize the default vehicle catalog variables.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="bg-black/40 p-4 rounded-sm border border-white/5 text-left flex flex-col justify-between">
-                  <div className="mb-4">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-1">Execution Mode</span>
-                    <p className="text-[9px] text-muted-foreground leading-relaxed uppercase">
-                      Current: <strong className={isLocalMode ? 'text-amber-400' : 'text-emerald-400'}>{isLocalMode ? 'Local Cache' : 'Cloud database'}</strong>
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      const nextMode = !isLocalMode;
-                      setBypassStatus(nextMode);
-                      toast.info(nextMode ? "Switching to Local Cache..." : "Connecting to Live Cloud Database...");
-                      setTimeout(() => window.location.reload(), 1000);
-                    }}
-                    variant="outline"
-                    className="w-full h-8 text-[9px] font-bold uppercase tracking-widest border-white/10 hover:bg-white hover:text-black cursor-pointer"
-                  >
-                    {isLocalMode ? "Go Live (Firebase)" : "Bypass (Local)"}
-                  </Button>
-                </div>
-
-                <div className="bg-black/40 p-4 rounded-sm border border-white/5 text-left flex flex-col justify-between">
-                  <div className="mb-4">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-1">Backup & Defaults</span>
-                    <p className="text-[9px] text-[#999999] leading-relaxed uppercase">
-                      Populate system catalogs with default classic JDM legacy listings.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleSeedData}
-                    disabled={isSeeding}
-                    variant="outline"
-                    className="w-full h-8 text-[9px] font-bold uppercase tracking-widest border-white/10 hover:bg-white hover:text-black cursor-pointer gap-1.5"
-                  >
-                    {isSeeding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
-                    Sync JDM Catalog
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       </main>
 
       <footer className="py-12 border-t border-border/50 flex flex-col items-center gap-4">
