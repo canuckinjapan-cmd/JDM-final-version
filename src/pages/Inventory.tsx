@@ -439,9 +439,9 @@ const Inventory = () => {
                           vehicle={c} 
                           onClose={() => setActiveVehicle(null)} 
                           className={`
-                            fixed inset-0 z-[100] rounded-none md:rounded-sm
-                            md:absolute md:inset-auto md:top-0 md:h-full md:z-30
-                            ${isLeft2Col ? 'md:left-0 md:w-[calc(200%+2rem)]' : 'md:left-[calc(-100%-2rem)] md:w-[calc(200%+2rem)]'}
+                            fixed inset-0 z-[100] rounded-none md:landscape:rounded-sm lg:rounded-sm
+                            md:landscape:absolute md:landscape:inset-auto md:landscape:top-0 md:landscape:h-full md:landscape:z-30
+                            ${isLeft2Col ? 'md:landscape:left-0 md:landscape:w-[calc(200%+2rem)]' : 'md:landscape:left-[calc(-100%-2rem)] md:landscape:w-[calc(200%+2rem)]'}
                             lg:absolute lg:inset-auto lg:top-0 lg:h-full lg:z-30
                             ${isLeft3Col ? 'lg:left-0 lg:w-[calc(200%+2rem)]' : 
                               isCenter3Col ? 'lg:left-0 lg:w-[calc(200%+2rem)]' : 
