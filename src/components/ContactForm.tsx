@@ -60,9 +60,12 @@ const ContactForm = ({ defaultSubject = "", compact = false }: ContactFormProps)
     setSubmitting(true);
 
     try {
-      // Intelligently compute the API URL to work perfectly both in root and subdirectory routes
+      // CONFIGURATION: Set this to 'root' to send enquiries directly to your main site's root mail handler (www.danburgess.com/api/contact).
+      // Set this to 'local' to use the JDM-specific Cloudflare Pages function at '/samples/jdm/api/contact'.
+      const MAIL_ROUTING_MODE: 'root' | 'local' = 'root';
+
       const baseDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-      const apiEndpoint = baseDir ? `${baseDir}/api/contact` : "/api/contact";
+      const apiEndpoint = MAIL_ROUTING_MODE === 'root' ? "/api/contact" : (baseDir ? `${baseDir}/api/contact` : "/api/contact");
 
       const response = await fetch(apiEndpoint, {
         method: "POST",
