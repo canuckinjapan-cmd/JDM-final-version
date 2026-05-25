@@ -324,124 +324,124 @@ const Inventory = () => {
                       key={c.id}
                       className="group gradient-card border border-border rounded-sm shadow-deep hover:border-bronze/50 transition-all duration-500 relative scroll-mt-24"
                     >
-                      {!activeVehicle || activeVehicle.id !== c.id ? (
-                        <>
-                          <div
-                            className={`relative aspect-[16/10] overflow-hidden bg-secondary group/main ${
-                              c.images && c.images.length > 0 ? "cursor-pointer" : ""
-                            }`}
-                            onClick={() => openSlideshow(c.images || [c.img])}
-                          >
-                            <img
-                              src={(c.images && c.images.length > 0) ? c.images[0] : c.img}
-                              alt={`${c.year} ${c.name}`}
-                              loading="lazy"
-                              width={1280}
-                              height={800}
-                              className="w-full h-full object-cover transition-transform duration-700 lg:group-hover/main:scale-105"
-                            />
-                            {c.images && c.images.length > 0 && (
-                              <div className="absolute inset-0 pointer-events-none">
-                                <ZoomIn className="text-white opacity-0 group-hover/main:opacity-100 w-10 h-10 transition-opacity absolute top-4 right-4 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]" />
-                              </div>
-                            )}
-                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                              <Badge
-                                variant="outline"
-                                className={`rounded-sm uppercase tracking-wider text-[10px] font-mono ${statusStyles[c.status]}`}
-                              >
-                                {c.status}
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className="rounded-sm uppercase tracking-wider text-[10px] font-mono bg-background/60 backdrop-blur-sm border-border text-foreground/80"
-                              >
-                                {c.grade}
-                              </Badge>
+                      <div className={activeVehicle?.id === c.id ? "opacity-0 pointer-events-none" : ""}>
+                        <div
+                          className={`relative aspect-[16/10] overflow-hidden bg-secondary group/main ${
+                            c.images && c.images.length > 0 ? "cursor-pointer" : ""
+                          }`}
+                          onClick={() => openSlideshow(c.images || [c.img])}
+                        >
+                          <img
+                            src={(c.images && c.images.length > 0) ? c.images[0] : c.img}
+                            alt={`${c.year} ${c.name}`}
+                            loading="lazy"
+                            width={1280}
+                            height={800}
+                            className="w-full h-full object-cover transition-transform duration-700 lg:group-hover/main:scale-105"
+                          />
+                          {c.images && c.images.length > 0 && (
+                            <div className="absolute inset-0 pointer-events-none">
+                              <ZoomIn className="text-white opacity-0 group-hover/main:opacity-100 w-10 h-10 transition-opacity absolute top-4 right-4 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]" />
                             </div>
-                            {/* Removed non-editable chassis overlay per user request */}
+                          )}
+                          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                            <Badge
+                              variant="outline"
+                              className={`rounded-sm uppercase tracking-wider text-[10px] font-mono ${statusStyles[c.status]}`}
+                            >
+                              {c.status}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="rounded-sm uppercase tracking-wider text-[10px] font-mono bg-background/60 backdrop-blur-sm border-border text-foreground/80"
+                            >
+                              {c.grade}
+                            </Badge>
+                          </div>
+                          {/* Removed non-editable chassis overlay per user request */}
+                        </div>
+
+                        <div className="p-6">
+                          <div className="flex items-start justify-between gap-4 mb-5">
+                            <div>
+                              <div className="mono text-xs text-bronze tracking-wider mb-1">
+                                {c.year}
+                              </div>
+                              <h3 className="font-display text-2xl leading-none">
+                                {c.name}
+                              </h3>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-[10px] uppercase tracking-wider text-muted-foreground flex flex-col items-end">
+                                <span>Price {currency !== 'JPY' && '· Approx'}</span>
+                              </div>
+                              <div className="font-display text-xl text-bronze">
+                                {convertPrice(c.priceJPY).formatted}
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="p-6">
-                            <div className="flex items-start justify-between gap-4 mb-5">
-                              <div>
-                                <div className="mono text-xs text-bronze tracking-wider mb-1">
-                                  {c.year}
-                                </div>
-                                <h3 className="font-display text-2xl leading-none">
-                                  {c.name}
-                                </h3>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-[10px] uppercase tracking-wider text-muted-foreground flex flex-col items-end">
-                                  <span>Price {currency !== 'JPY' && '· Approx'}</span>
-                                </div>
-                                <div className="font-display text-xl text-bronze">
-                                  {convertPrice(c.priceJPY).formatted}
-                                </div>
-                              </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm mb-6 pt-5 border-t border-border">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Gauge className="w-4 h-4 text-bronze" /> {c.mileage}
                             </div>
-
-                            <div className="grid grid-cols-2 gap-3 text-sm mb-6 pt-5 border-t border-border">
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Gauge className="w-4 h-4 text-bronze" /> {c.mileage}
-                              </div>
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Cog className="w-4 h-4 text-bronze" /> {c.transmission}
-                              </div>
-                              <div className="mono text-[11px] text-muted-foreground tracking-wider uppercase">
-                                {c.displacementLabel}
-                              </div>
-                              <div className="mono text-[11px] text-muted-foreground tracking-wider uppercase">
-                                {c.stockNumber ? `Stock: ${c.stockNumber}` : ""}
-                              </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Cog className="w-4 h-4 text-bronze" /> {c.transmission}
                             </div>
+                            <div className="mono text-[11px] text-muted-foreground tracking-wider uppercase">
+                              {c.displacementLabel}
+                            </div>
+                            <div className="mono text-[11px] text-muted-foreground tracking-wider uppercase">
+                              {c.stockNumber ? `Stock: ${c.stockNumber}` : ""}
+                            </div>
+                          </div>
 
-                            <div className="flex flex-col sm:flex-row gap-3">
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                              variant="outline"
+                              className="flex-1 rounded-sm border-border hover:border-bronze hover:bg-bronze/10 hover:text-bronze transition-colors h-11"
+                              onClick={(e) => {
+                                const article = e.currentTarget.closest('article');
+                                if (article) article.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                setActiveVehicle(c);
+                              }}
+                            >
+                              <Info className="w-4 h-4 mr-2 hidden md:block" />
+                              View Details
+                            </Button>
+                            {c.status === "SOLD" ? (
                               <Button
-                                variant="outline"
-                                className="flex-1 rounded-sm border-border hover:border-bronze hover:bg-bronze/10 hover:text-bronze transition-colors h-11"
-                                onClick={(e) => {
-                                  const article = e.currentTarget.closest('article');
-                                  if (article) article.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                  setActiveVehicle(c);
-                                }}
+                                disabled
+                                className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
                               >
-                                <Info className="w-4 h-4 mr-2 hidden md:block" />
-                                View Details
+                                Sold
                               </Button>
-                              {c.status === "SOLD" ? (
-                                <Button
-                                  disabled
-                                  className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
+                            ) : (
+                              <Button
+                                asChild
+                                className="flex-1 rounded-sm gradient-bronze hover:opacity-90 transition-opacity h-11 border-0 text-white cursor-pointer"
+                              >
+                                <Link 
+                                  to="/#contact"
+                                  state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
                                 >
-                                  Sold
-                                </Button>
-                              ) : (
-                                <Button
-                                  asChild
-                                  className="flex-1 rounded-sm gradient-bronze hover:opacity-90 transition-opacity h-11 border-0 text-white cursor-pointer"
-                                >
-                                  <Link 
-                                    to="/#contact"
-                                    state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
-                                  >
-                                    <Mail className="w-4 h-4 mr-2 hidden md:block" />
-                                    Enquire
-                                  </Link>
-                                </Button>
-                              )}
-                            </div>
+                                  <Mail className="w-4 h-4 mr-2 hidden md:block" />
+                                  Enquire
+                                </Link>
+                              </Button>
+                            )}
                           </div>
-                        </>
-                      ) : (
+                        </div>
+                      </div>
+
+                      {activeVehicle?.id === c.id && (
                         <VehicleDetailsOverlay 
                           vehicle={c} 
                           onClose={() => setActiveVehicle(null)} 
                           className={`
-                            fixed inset-0 z-[100] rounded-none md:landscape:rounded-sm lg:rounded-sm
-                            md:landscape:absolute md:landscape:inset-auto md:landscape:top-0 md:landscape:h-full md:landscape:z-30
-                            ${isLeft2Col ? 'md:landscape:left-0 md:landscape:w-[calc(200%+2rem)]' : 'md:landscape:left-[calc(-100%-2rem)] md:landscape:w-[calc(200%+2rem)]'}
+                            fixed inset-0 z-[100] rounded-none md:rounded-sm lg:rounded-sm
+                            md:absolute md:inset-auto md:top-0 md:h-full md:z-30
+                            ${isLeft2Col ? 'md:left-0 md:w-[calc(200%+2rem)]' : 'md:left-[calc(-100%-2rem)] md:w-[calc(200%+2rem)]'}
                             lg:absolute lg:inset-auto lg:top-0 lg:h-full lg:z-30
                             ${isLeft3Col ? 'lg:left-0 lg:w-[calc(200%+2rem)]' : 
                               isCenter3Col ? 'lg:left-0 lg:w-[calc(200%+2rem)]' : 

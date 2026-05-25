@@ -295,8 +295,7 @@ const Index = () => {
                   key={c.id}
                   className="group gradient-card border border-border rounded-sm shadow-deep hover:border-bronze/50 transition-all duration-500 relative scroll-mt-24"
                 >
-                  {!activeVehicle || activeVehicle.id !== c.id ? (
-                  <>
+                  <div className={activeVehicle?.id === c.id ? "opacity-0 pointer-events-none" : ""}>
                     <div
                       className={`relative aspect-[16/10] overflow-hidden bg-secondary group/main ${
                         c.images && c.images.length > 0 ? "cursor-pointer" : ""
@@ -362,56 +361,56 @@ const Index = () => {
                         </div>
                       </div>
 
-                        <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1 rounded-sm border-border hover:border-bronze hover:bg-bronze/10 hover:text-bronze transition-colors h-11"
+                          onClick={(e) => {
+                            const article = e.currentTarget.closest('article');
+                            if (article) article.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            setActiveVehicle(c);
+                          }}
+                        >
+                          <Info className="w-4 h-4 mr-2 hidden md:block" />
+                          View Details
+                        </Button>
+                        {c.status === "SOLD" ? (
                           <Button
-                            variant="outline"
-                            className="flex-1 rounded-sm border-border hover:border-bronze hover:bg-bronze/10 hover:text-bronze transition-colors h-11"
-                            onClick={(e) => {
-                              const article = e.currentTarget.closest('article');
-                              if (article) article.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                              setActiveVehicle(c);
-                            }}
+                            disabled
+                            className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
                           >
-                            <Info className="w-4 h-4 mr-2 hidden md:block" />
-                            View Details
+                            Sold
                           </Button>
-                          {c.status === "SOLD" ? (
-                            <Button
-                              disabled
-                              className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
+                        ) : (
+                          <Button
+                            asChild
+                            className="flex-1 rounded-sm gradient-bronze hover:opacity-90 transition-opacity h-11 border-0 text-white cursor-pointer"
+                          >
+                            <Link 
+                              to="/#contact"
+                              state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
                             >
-                              Sold
-                            </Button>
-                          ) : (
-                            <Button
-                              asChild
-                              className="flex-1 rounded-sm gradient-bronze hover:opacity-90 transition-opacity h-11 border-0 text-white cursor-pointer"
-                            >
-                              <Link 
-                                to="/#contact"
-                                state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
-                              >
-                                <Mail className="w-4 h-4 mr-2 hidden md:block" />
-                                Enquire
-                              </Link>
-                            </Button>
-                          )}
-                        </div>
+                              <Mail className="w-4 h-4 mr-2 hidden md:block" />
+                              Enquire
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </>
-                ) : (
-                  <VehicleDetailsOverlay 
-                    vehicle={c} 
-                    onClose={() => setActiveVehicle(null)} 
-                    className={`
-                      fixed inset-0 z-[100] rounded-none md:landscape:rounded-sm lg:rounded-sm
-                      md:landscape:absolute md:landscape:inset-auto md:landscape:top-0 md:landscape:h-full md:landscape:z-30
-                      ${isLeft2Col ? 'md:landscape:left-0 md:landscape:w-[calc(200%+2rem)]' : 'md:landscape:left-[calc(-100%-2rem)] md:landscape:w-[calc(200%+2rem)]'}
-                      md:landscape:inset-0 md:landscape:left-0 md:landscape:w-full md:landscape:h-full
-                      lg:absolute lg:inset-0 lg:left-0 lg:w-full lg:h-full lg:z-30
-                    `}
-                  />
-                )}
+                  </div>
+
+                  {activeVehicle?.id === c.id && (
+                    <VehicleDetailsOverlay 
+                      vehicle={c} 
+                      onClose={() => setActiveVehicle(null)} 
+                      className={`
+                        fixed inset-0 z-[100] rounded-none md:rounded-sm
+                        md:absolute md:inset-auto md:top-0 md:h-full md:z-30
+                        ${isLeft2Col ? 'md:left-0 md:w-[calc(200%+2rem)]' : 'md:left-[calc(-100%-2rem)] md:w-[calc(200%+2rem)]'}
+                        lg:absolute lg:inset-0 lg:left-0 lg:w-full lg:h-full lg:z-30
+                      `}
+                    />
+                  )}
                 </article>
               );
             })}
