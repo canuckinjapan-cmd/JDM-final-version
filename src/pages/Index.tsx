@@ -587,7 +587,15 @@ const Index = () => {
                 </p>
                 <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
                   <span>Marcus Thorne</span>
-                  <span className="flex items-center gap-2"><span className="text-sm">🇬🇧</span> United Kingdom</span>
+                  <span className="flex items-center gap-2">
+                    <img 
+                      src="https://flagcdn.com/w40/gb.png" 
+                      alt="United Kingdom Flag" 
+                      className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
+                      referrerPolicy="no-referrer"
+                    />
+                    United Kingdom
+                  </span>
                 </div>
               </div>
             </div>
@@ -613,7 +621,15 @@ const Index = () => {
                 </p>
                 <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
                   <span>Elena Rodriguez</span>
-                  <span className="flex items-center gap-2"><span className="text-sm">🇬🇧</span> United Kingdom</span>
+                  <span className="flex items-center gap-2">
+                    <img 
+                      src="https://flagcdn.com/w40/gb.png" 
+                      alt="United Kingdom Flag" 
+                      className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
+                      referrerPolicy="no-referrer"
+                    />
+                    United Kingdom
+                  </span>
                 </div>
               </div>
             </div>
@@ -639,7 +655,15 @@ const Index = () => {
                 </p>
                 <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
                   <span>James Chen</span>
-                  <span className="flex items-center gap-2"><span className="text-sm">🇦🇺</span> Australia</span>
+                  <span className="flex items-center gap-2">
+                    <img 
+                      src="https://flagcdn.com/w40/au.png" 
+                      alt="Australia Flag" 
+                      className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
+                      referrerPolicy="no-referrer"
+                    />
+                    Australia
+                  </span>
                 </div>
               </div>
             </div>
