@@ -62,15 +62,34 @@ const SiteNav = () => {
             </Link>
           )}
         </nav>
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center rounded-sm border border-border bg-background/50 overflow-hidden text-xs">
+        <div className="flex items-center gap-4 md:gap-3 lg:gap-4">
+          {/* Tablet portrait Nav links */}
+          <nav className="hidden md:flex lg:hidden items-center gap-4 text-xs font-semibold uppercase tracking-wider">
+            <Link to="/inventory" className="hover:text-bronze transition-colors">
+              Inventory
+            </Link>
+            <Link to="/#about" className="hover:text-bronze transition-colors">
+              About
+            </Link>
+            <Link to="/#process" className="hover:text-bronze transition-colors">
+              Process
+            </Link>
+            {isAdmin && (
+              <Link to="/admin" className="text-bronze hover:text-bronze/80 transition-colors flex items-center gap-1.5">
+                <Settings className="w-3.5 h-3.5" /> Admin
+              </Link>
+            )}
+          </nav>
+
+          {/* Squeezed Currency Converter */}
+          <div className="hidden md:flex items-center rounded-sm border border-border bg-background/50 overflow-hidden text-xs">
             {CURRENCIES.map(code => (
               <button
                 key={code}
                 onClick={() => setCurrency(code)}
-                className={`px-3 py-2 transition-colors ${
+                className={`transition-colors font-medium px-2 py-1.5 text-[11px] md:px-1.5 md:py-1 md:text-[10px] lg:px-3 lg:py-2 lg:text-xs ${
                   currency === code 
-                    ? 'bg-bronze text-primary-foreground font-medium' 
+                    ? 'bg-bronze text-primary-foreground' 
                     : 'hover:bg-foreground/5'
                 }`}
               >
@@ -78,18 +97,22 @@ const SiteNav = () => {
               </button>
             ))}
           </div>
+
+          {/* Enquire Button */}
           <Button
             asChild
-            className="hidden sm:flex bg-bronze hover:bg-primary/90 text-primary-foreground font-medium rounded-sm gap-2"
+            className="hidden sm:flex bg-bronze hover:bg-primary/90 text-primary-foreground font-medium rounded-sm gap-1.5 px-3 h-8 text-[11px] lg:gap-2 lg:px-4 lg:h-10 lg:text-sm"
           >
             <Link to="/#contact">
-              <Mail className="w-4 h-4" /> Enquire
+              <Mail className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> Enquire
             </Link>
           </Button>
+
+          {/* Mobile Menu Toggle Button (hidden on tablet and desktop) */}
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden text-foreground hover:bg-transparent hover:text-bronze"
+            className="md:hidden text-foreground hover:bg-transparent hover:text-bronze"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -98,7 +121,7 @@ const SiteNav = () => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border/50 p-6 flex flex-col gap-6 shadow-xl">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-background border-b border-border/50 p-6 flex flex-col gap-6 shadow-xl">
           <nav className="flex flex-col gap-4 text-lg font-medium">
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="hover:text-bronze transition-colors">Home</Link>
             <Link to="/inventory" onClick={() => setMobileMenuOpen(false)} className="hover:text-bronze transition-colors">Inventory</Link>
