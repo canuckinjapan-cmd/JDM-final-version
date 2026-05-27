@@ -355,7 +355,7 @@ const Inventory = () => {
                               variant="outline"
                               className="rounded-sm uppercase tracking-wider text-[10px] font-mono bg-background/60 backdrop-blur-sm border-border text-foreground/80"
                             >
-                              {c.grade}
+                              {!c.grade ? '' : /^auction/i.test(c.grade) ? c.grade : `Auction Grade ${c.grade}`}
                             </Badge>
                           </div>
                           {/* Removed non-editable chassis overlay per user request */}

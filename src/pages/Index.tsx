@@ -326,7 +326,7 @@ const Index = () => {
                           variant="outline"
                           className="rounded-sm uppercase tracking-wider text-[10px] font-mono bg-background/60 backdrop-blur-sm border-border text-foreground/80"
                         >
-                          {c.grade}
+                          {!c.grade ? '' : /^auction/i.test(c.grade) ? c.grade : `Auction Grade ${c.grade}`}
                         </Badge>
                       </div>
                       {/* Removed non-editable chassis overlay per user request */}
@@ -731,7 +731,9 @@ const Index = () => {
           <div className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground text-center">
             Nagoya · Japan · British-Owned · Est. 1994
           </div>
-          <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} JDM Retro Rides</div>
+          <div className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} JDM Retro Rides
+          </div>
         </div>
       </footer>
       <SlideshowModal

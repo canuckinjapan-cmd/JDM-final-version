@@ -659,7 +659,7 @@ const Admin = () => {
 
       // Live Mode Upload
       const uploadedUrls: string[] = [];
-      const MAX_WAIT = 12000; // Fail over fast (12s) to local compression backup so users are never stuck
+      const MAX_WAIT = 25000; // Fail over fast (25s) to local compression backup so users are never stuck
       
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -1287,9 +1287,9 @@ service firebase.storage {
              </div>
           ) : (
             vehicles.map((v) => (
-              <div key={v.id} className={`bg-secondary/10 border border-white/5 rounded-sm p-6 space-y-6 transition-all duration-300 ${v.isVisible === false ? 'opacity-40 grayscale-[20%]' : ''}`}>
+              <div key={v.id} className={`bg-[#0f0f11] border border-white/20 rounded-sm p-6 space-y-6 transition-all duration-300 ${v.isVisible === false ? 'opacity-40 grayscale-[20%]' : ''}`}>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 aspect-video rounded-sm overflow-hidden bg-secondary border border-white/5 shrink-0">
+                  <div className="w-20 aspect-video rounded-sm overflow-hidden bg-secondary border border-white/15 shrink-0">
                     <img src={v.img} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -1303,15 +1303,15 @@ service firebase.storage {
                 
                 <div className="space-y-3 pt-2 text-[11px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Added:</span>
+                    <span className="text-[11px] uppercase tracking-wider text-foreground/80 font-medium">Added:</span>
                     <span className="font-medium text-foreground/80">{v.dateAdded}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Stock:</span>
+                    <span className="text-[11px] uppercase tracking-wider text-foreground/80 font-medium">Stock:</span>
                     <span className="font-mono text-foreground/80 lowercase">{v.stockNumber || "-"}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Status:</span>
+                    <span className="text-[11px] uppercase tracking-wider text-foreground/80 font-bold">Status:</span>
                     <span className={`inline-block px-2.5 py-1 rounded-sm text-[8px] font-black tracking-widest border border-current bg-current/10 ${
                       v.status === 'AVAILABLE' ? 'text-success' : v.status === 'RESERVED' ? 'text-bronze' : 'text-destructive'
                     }`}>
@@ -1319,13 +1319,13 @@ service firebase.storage {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Price:</span>
+                    <span className="text-[11px] uppercase tracking-wider text-foreground/80 font-bold">Price:</span>
                     <span className="font-bold text-bronze text-sm">{convertPrice(v.priceJPY).formatted}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
-                  <Button onClick={() => handleToggleVisibility(v)} variant="secondary" className="bg-secondary/50 hover:bg-bronze hover:text-black gap-2 h-10 px-4 text-[10px] uppercase font-bold tracking-widest rounded-sm flex-1 sm:flex-initial justify-center">
+                  <Button onClick={() => handleToggleVisibility(v)} variant="secondary" className="bg-secondary/50 hover:bg-bronze hover:text-black border border-white/20 hover:border-white/40 gap-2 h-10 px-4 text-[10px] uppercase font-bold tracking-widest rounded-sm flex-1 sm:flex-initial justify-center">
                     {v.isVisible !== false ? (
                       <>
                         <Eye className="w-3.5 h-3.5 text-emerald-400" /> Hide
@@ -1336,12 +1336,12 @@ service firebase.storage {
                       </>
                     )}
                   </Button>
-                  <Button onClick={() => openEdit(v)} variant="secondary" className="bg-secondary/50 hover:bg-bronze hover:text-black gap-2 h-10 px-6 text-[10px] uppercase font-bold tracking-widest rounded-sm flex-1 sm:flex-initial justify-center">
+                  <Button onClick={() => openEdit(v)} variant="secondary" className="bg-secondary/50 hover:bg-bronze hover:text-black border border-white/20 hover:border-white/40 gap-2 h-10 px-6 text-[10px] uppercase font-bold tracking-widest rounded-sm flex-1 sm:flex-initial justify-center">
                     <Edit2 className="w-3.5 h-3.5" /> Edit
                   </Button>
                   <Button 
                     onClick={() => v.id && handleDelete(v.id)} 
-                    className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white gap-2 h-10 px-6 text-[10px] uppercase font-bold tracking-widest rounded-sm border border-destructive/20 flex-1 sm:flex-initial justify-center"
+                    className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white border border-destructive/40 hover:border-destructive/60 gap-2 h-10 px-6 text-[10px] uppercase font-bold tracking-widest rounded-sm flex-1 sm:flex-initial justify-center"
                     disabled={isDeleting === v.id}
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -1400,7 +1400,22 @@ service firebase.storage {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold text-muted-foreground tracking-wide">Price (¥)</Label>
-                    <Input type="number" value={formData.priceJPY} onChange={e => setFormData({...formData, priceJPY: parseInt(e.target.value)})} className="bg-background border-white/10 rounded-sm h-11" />
+                    <Input 
+                      type="number" 
+                      value={formData.priceJPY ?? ""} 
+                      onChange={e => {
+                        const val = parseInt(e.target.value);
+                        setFormData({...formData, priceJPY: isNaN(val) ? "" as any : val});
+                      }} 
+                      onFocus={e => {
+                        if (formData.priceJPY === 0) {
+                          setFormData({...formData, priceJPY: "" as any});
+                        } else {
+                          e.target.select();
+                        }
+                      }}
+                      className="bg-background border-white/10 rounded-sm h-11" 
+                    />
                   </div>
                 </div>
                 <div className="space-y-4 md:col-span-2">
@@ -1451,21 +1466,68 @@ service firebase.storage {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6">
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground tracking-wide">Year</Label>
-                  <Input type="number" value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="bg-background border-white/10 rounded-sm h-11" />
+                  <Input 
+                    type="number" 
+                    value={formData.year ?? ""} 
+                    onChange={e => {
+                      const val = parseInt(e.target.value);
+                      setFormData({...formData, year: isNaN(val) ? "" as any : val});
+                    }} 
+                    onFocus={e => {
+                      if (formData.year === 2024 || formData.year === 0) {
+                        setFormData({...formData, year: "" as any});
+                      } else {
+                        e.target.select();
+                      }
+                    }}
+                    className="bg-background border-white/10 rounded-sm h-11" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground tracking-wide">Mileage (km)</Label>
-                  <Input type="number" value={formData.mileageKm} onChange={e => {
-                    const val = parseInt(e.target.value);
-                    setFormData({...formData, mileageKm: val, mileage: `${val.toLocaleString()} km`});
-                  }} className="bg-background border-white/10 rounded-sm h-11" />
+                  <Input 
+                    type="number" 
+                    value={formData.mileageKm ?? ""} 
+                    onChange={e => {
+                      const val = parseInt(e.target.value);
+                      if (isNaN(val)) {
+                        setFormData({...formData, mileageKm: "" as any, mileage: ""});
+                      } else {
+                        setFormData({...formData, mileageKm: val, mileage: `${val.toLocaleString()} km`});
+                      }
+                    }} 
+                    onFocus={e => {
+                      if (formData.mileageKm === 0) {
+                        setFormData({...formData, mileageKm: "" as any});
+                      } else {
+                        e.target.select();
+                      }
+                    }}
+                    className="bg-background border-white/10 rounded-sm h-11" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground tracking-wide">Displacement (cc)</Label>
-                  <Input type="number" value={formData.displacementCc} onChange={e => {
-                    const val = parseInt(e.target.value);
-                    setFormData({...formData, displacementCc: val, displacementLabel: `${(val/1000).toFixed(1)}L`});
-                  }} className="bg-background border-white/10 rounded-sm h-11" />
+                  <Input 
+                    type="number" 
+                    value={formData.displacementCc ?? ""} 
+                    onChange={e => {
+                      const val = parseInt(e.target.value);
+                      if (isNaN(val)) {
+                        setFormData({...formData, displacementCc: "" as any, displacementLabel: ""});
+                      } else {
+                        setFormData({...formData, displacementCc: val, displacementLabel: `${(val/1000).toFixed(1)}L`});
+                      }
+                    }} 
+                    onFocus={e => {
+                      if (formData.displacementCc === 0) {
+                        setFormData({...formData, displacementCc: "" as any});
+                      } else {
+                        e.target.select();
+                      }
+                    }}
+                    className="bg-background border-white/10 rounded-sm h-11" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground tracking-wide">Transmission</Label>
@@ -1511,7 +1573,22 @@ service firebase.storage {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground tracking-wide">Seating</Label>
-                  <Input type="number" value={formData.seatingCapacity} onChange={e => setFormData({...formData, seatingCapacity: parseInt(e.target.value)})} className="bg-background border-white/10 rounded-sm h-11" />
+                  <Input 
+                    type="number" 
+                    value={formData.seatingCapacity ?? ""} 
+                    onChange={e => {
+                      const val = parseInt(e.target.value);
+                      setFormData({...formData, seatingCapacity: isNaN(val) ? "" as any : val});
+                    }} 
+                    onFocus={e => {
+                      if (formData.seatingCapacity === 2 || formData.seatingCapacity === 0) {
+                        setFormData({...formData, seatingCapacity: "" as any});
+                      } else {
+                        e.target.select();
+                      }
+                    }}
+                    className="bg-background border-white/10 rounded-sm h-11" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground tracking-wide">Grade</Label>
