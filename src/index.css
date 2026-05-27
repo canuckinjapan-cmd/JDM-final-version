@@ -1,10 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 /* JDM Retro Rides — Dark Heritage Design System */
 
 @theme {
-  /* Core surfaces — deep charcoal */
+  /* Bridge variables for legacy tailwind.config mapping values */
+  --background: hsl(24 10% 7%);
+  --foreground: hsl(36 30% 92%);
+  --card: hsl(24 8% 10%);
+  --card-foreground: hsl(36 30% 92%);
+  --popover: hsl(24 10% 9%);
+  --popover-foreground: hsl(36 30% 92%);
+  --primary: hsl(32 55% 52%);
+  --primary-foreground: hsl(24 15% 8%);
+  --primary-glow: hsl(36 70% 62%);
+  --bronze: hsl(32 55% 52%);
+  --secondary: hsl(24 8% 14%);
+  --secondary-foreground: hsl(36 25% 88%);
+  --muted: hsl(24 6% 16%);
+  --muted-foreground: hsl(32 12% 62%);
+  --accent: hsl(32 55% 52%);
+  --accent-foreground: hsl(24 15% 8%);
+  --destructive: hsl(6 72% 50%);
+  --destructive-foreground: hsl(36 30% 95%);
+  --success: hsl(142 45% 45%);
+  --success-foreground: hsl(36 30% 95%);
+  --border: hsl(30 10% 18%);
+  --input: hsl(30 10% 18%);
+  --ring: hsl(32 55% 52%);
+
+  /* Core surfaces — deep charcoal (Tailwind v4 theme mappings) */
   --color-background: hsl(24 10% 7%);
   --color-foreground: hsl(36 30% 92%);
 
@@ -60,6 +84,13 @@
 }
 
 @layer base {
+  #root {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -70,6 +101,7 @@
     @apply antialiased;
     font-family: var(--font-sans);
     font-feature-settings: 'ss01', 'cv11';
+    overflow-x: hidden;
   }
 
   h1,

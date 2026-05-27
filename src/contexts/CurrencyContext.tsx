@@ -17,12 +17,50 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     const fetchRates = async () => {
+      // Attempt to load from localStorage cache first
+      try {
+        const cachedRatesStr = localStorage.getItem('jdm_exchange_rates');
+        const cachedTimeStr = localStorage.getItem('jdm_exchange_rates_timestamp');
+        
+        if (cachedRatesStr && cachedTimeStr) {
+          const cachedTime = parseInt(cachedTimeStr, 10);
+          const age = Date.now() - cachedTime;
+          const twelveHours = 12 * 60 * 60 * 1000;
+          
+          if (age < twelveHours) {
+            const parsedRates = JSON.parse(cachedRatesStr);
+            setRates(parsedRates);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed retrieving cached currency rates", err);
+      }
+
+      // Fetch fresh rates
       try {
         const response = await fetch('https://open.er-api.com/v6/latest/JPY');
         const data = await response.json();
-        setRates(data.rates);
+        if (data && data.rates) {
+          setRates(data.rates);
+          try {
+            localStorage.setItem('jdm_exchange_rates', JSON.stringify(data.rates));
+            localStorage.setItem('jdm_exchange_rates_timestamp', Date.now().toString());
+          } catch (err) {
+            console.warn("Failed writing currency rates to cache", err);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch exchange rates", error);
+        // Fallback to stale cache if call failed entirely
+        try {
+          const cachedRatesStr = localStorage.getItem('jdm_exchange_rates');
+          if (cachedRatesStr) {
+            setRates(JSON.parse(cachedRatesStr));
+          }
+        } catch (err) {
+          // No action needed
+        }
       }
     };
     fetchRates();

@@ -26,6 +26,11 @@ const SiteNav = () => {
     return unsubscribe;
   }, []);
 
+  // Sync mobile menu open state with route and anchor transitions to prevent trapped overlays
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname, location.hash]);
+
   return (
     <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/50">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
