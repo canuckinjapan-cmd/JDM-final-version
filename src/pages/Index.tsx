@@ -188,7 +188,7 @@ const Index = () => {
       </div>
 
       {/* HERO */}
-      <section className="relative min-h-[calc(100svh-4vh)] flex items-end overflow-hidden grain">
+      <section className="relative min-h-[calc(100svh-4vh)] flex items-end md:items-center overflow-hidden grain">
         <img
           ref={heroImgRef}
           src={heroImg}
