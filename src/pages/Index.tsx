@@ -589,12 +589,12 @@ const Index = () => {
                   <span>Marcus Thorne</span>
                   <span className="flex items-center gap-2">
                     <img 
-                      src="https://flagcdn.com/w40/gb.png" 
-                      alt="United Kingdom Flag" 
+                      src="https://flagcdn.com/w40/us.png" 
+                      alt="United States Flag" 
                       className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
                       referrerPolicy="no-referrer"
                     />
-                    United Kingdom
+                    United States
                   </span>
                 </div>
               </div>
