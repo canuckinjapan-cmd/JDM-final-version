@@ -2,8 +2,9 @@ import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Vehicle, statusStyles } from "@/lib/firebase";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 
 interface VehicleDetailsOverlayProps {
   vehicle: Vehicle;
@@ -13,6 +14,7 @@ interface VehicleDetailsOverlayProps {
 
 export const VehicleDetailsOverlay = ({ vehicle, onClose, className }: VehicleDetailsOverlayProps) => {
   const { convertPrice } = useCurrency();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -21,6 +23,19 @@ export const VehicleDetailsOverlay = ({ vehicle, onClose, className }: VehicleDe
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
+
+  const getStatusLabel = (status: string) => {
+    if (language === 'ja') {
+      switch (status) {
+        case 'AVAILABLE': return '販売中';
+        case 'IN_TRANSIT': return '輸送中';
+        case 'SOURCING': return '仕入れ中';
+        case 'SOLD': return '売約済';
+        default: return status;
+      }
+    }
+    return status;
+  };
 
   return (
     <motion.div
@@ -37,14 +52,14 @@ export const VehicleDetailsOverlay = ({ vehicle, onClose, className }: VehicleDe
           </h2>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className={`rounded-sm uppercase tracking-wider text-[8px] lg:text-[10px] h-3.5 lg:h-5 px-1 lg:px-2.5 font-mono ${statusStyles[vehicle.status]}`}>
-              {vehicle.status}
+              {getStatusLabel(vehicle.status)}
             </Badge>
             <span className="font-display text-base lg:text-xl text-bronze">
               {convertPrice(vehicle.priceJPY).formatted}
             </span>
             {vehicle.stockNumber && (
               <span className="mono text-[10px] lg:text-xs text-muted-foreground ml-2">
-                Stock: {vehicle.stockNumber}
+                {t.vehicleOverlay.stock}: {vehicle.stockNumber}
               </span>
             )}
           </div>
@@ -52,58 +67,59 @@ export const VehicleDetailsOverlay = ({ vehicle, onClose, className }: VehicleDe
         <button
           onClick={onClose}
           className="text-muted-foreground hover:text-foreground transition-colors p-1"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
       <p className="text-xs lg:text-sm text-muted-foreground mb-4 lg:mb-6 leading-relaxed line-clamp-3 lg:line-clamp-none">
-        {vehicle.description || "A pristine example of Japanese domestic market engineering. Contact us for the full auction sheet and detailed inspection report."}
+        {vehicle.description || t.vehicleOverlay.defaultDesc}
       </p>
 
       <div className="grid grid-cols-2 gap-x-4 lg:gap-x-6 gap-y-2 lg:gap-y-4 text-[13px] lg:text-sm mt-auto border-t border-border pt-3 lg:pt-4">
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Price</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.price}</span>
           <span className="font-medium">{convertPrice(vehicle.priceJPY).formatted}</span>
         </div>
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Year</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.year}</span>
           <span className="font-medium">{vehicle.year}</span>
         </div>
         
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Mileage</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.mileage}</span>
           <span className="font-medium">{vehicle.mileage}</span>
         </div>
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Displacement</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.displacement}</span>
           <span className="font-medium">{vehicle.displacementCc} cc</span>
         </div>
         
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Transmission</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.transmission}</span>
           <span className="font-medium">{vehicle.transmission}</span>
         </div>
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Color</span>
-          <span className="font-medium text-right truncate ml-2">{vehicle.color || "Available on request"}</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.color}</span>
+          <span className="font-medium text-right truncate ml-2">{vehicle.color || t.vehicleOverlay.onRequest}</span>
         </div>
         
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Repaired</span>
-          <span className="font-medium">{vehicle.repaired || "No repair history"}</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.repaired}</span>
+          <span className="font-medium">{vehicle.repaired || t.vehicleOverlay.noRepair}</span>
         </div>
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Seating</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.seating}</span>
           <span className="font-medium">{vehicle.seatingCapacity || "-"}</span>
         </div>
         
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Grade</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.grade}</span>
           <span className="font-medium">{vehicle.grade.replace("Auction Grade ", "")}</span>
         </div>
         <div className="flex justify-between border-b border-border/50 pb-1 lg:pb-2">
-          <span className="text-muted-foreground">Drive</span>
+          <span className="text-muted-foreground">{t.vehicleOverlay.drive}</span>
           <span className="font-medium">{vehicle.driveSystem || "RWD/AWD"}</span>
         </div>
       </div>
@@ -113,8 +129,8 @@ export const VehicleDetailsOverlay = ({ vehicle, onClose, className }: VehicleDe
           onClick={onClose}
           className="text-[9px] lg:text-xs text-bronze uppercase tracking-widest hover:underline"
         >
-          <span className="lg:hidden text-[10px]">Click [X] to close details</span>
-          <span className="hidden lg:inline">CLICK [X] OR HIT ESC TO CLOSE DETAILS</span>
+          <span className="lg:hidden text-[10px]">{t.vehicleOverlay.closeMobile}</span>
+          <span className="hidden lg:inline">{t.vehicleOverlay.closeDesktop}</span>
         </button>
       </div>
     </motion.div>

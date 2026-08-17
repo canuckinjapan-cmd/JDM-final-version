@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index.tsx";
 import Inventory from "./pages/Inventory.tsx";
 import Admin from "./pages/Admin.tsx";
@@ -15,21 +16,23 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CurrencyProvider>
-        <div className="min-h-screen bg-background text-foreground">
-          <Toaster />
-          <Sonner />
-          <HashRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </HashRouter>
-        </div>
-      </CurrencyProvider>
+      <LanguageProvider>
+        <CurrencyProvider>
+          <div className="min-h-screen bg-background text-foreground">
+            <Toaster />
+            <Sonner />
+            <HashRouter>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </HashRouter>
+          </div>
+        </CurrencyProvider>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

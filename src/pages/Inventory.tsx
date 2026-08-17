@@ -12,18 +12,12 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import SiteNav from "@/components/SiteNav";
-import { inventory, resolveVehicleData } from "@/data/inventory";
+import { inventory } from "@/data/inventory";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import SlideshowModal from "@/components/SlideshowModal";
 import { VehicleDetailsOverlay } from "@/components/VehicleDetailsOverlay";
 import { 
-  db, 
-  collection, 
-  getDocs, 
-  query, 
-  orderBy, 
-  handleFirestoreError, 
-  OperationType,
   fetchVehicles as fetchVehiclesService,
   Vehicle,
   statusStyles,
@@ -38,6 +32,7 @@ type DispSort = "" | "high-low" | "low-high";
 
 const Inventory = () => {
   const { convertPrice, currency } = useCurrency();
+  const { t, language } = useLanguage();
   const [mainSort, setMainSort] = useState<MainSort>("stock-az");
   const [priceSort, setPriceSort] = useState<PriceSort>("");
   const [dispSort, setDispSort] = useState<DispSort>("");
@@ -64,8 +59,6 @@ const Inventory = () => {
           setDbVehicles(list);
           setConnectionMode("live");
         } else {
-          // If Firestore is empty (e.g. initial set up) it returns an empty array, 
-          // let's show live empty state or fall back cleanly
           setDbVehicles([]);
           setConnectionMode("live");
         }
@@ -103,6 +96,19 @@ const Inventory = () => {
     if (!images || images.length === 0) return;
     setSlideshowImages(images);
     setSlideshowOpen(true);
+  };
+
+  const getStatusLabel = (status: string) => {
+    if (language === 'ja') {
+      switch (status) {
+        case 'AVAILABLE': return '販売中';
+        case 'IN_TRANSIT': return '輸送中';
+        case 'SOURCING': return '仕入れ中';
+        case 'SOLD': return '売約済';
+        default: return status;
+      }
+    }
+    return status;
   };
 
   const visible = useMemo(() => {
@@ -193,16 +199,14 @@ const Inventory = () => {
           <div className="flex items-center gap-3 mb-4">
             <span className="h-px w-10 bg-bronze" />
             <span className="mono text-xs uppercase tracking-[0.3em] text-bronze">
-              Vehicles
+              {t.inventoryPage.tag}
             </span>
           </div>
           <h1 className="font-display text-5xl md:text-7xl leading-none mb-4">
-            Current & Past <span className="text-bronze">Inventory</span>
+            {t.inventoryPage.title} <span className="text-bronze">{t.inventoryPage.titleHighlight}</span>
           </h1>
           <p className="text-muted-foreground max-w-2xl">
-            Hand-picked from USS, JU and TAA auctions across Japan. Every
-            vehicle inspected on the lane. Translated auction sheets available
-            on request.
+            {t.inventoryPage.description}
           </p>
         </div>
       </section>
@@ -211,14 +215,14 @@ const Inventory = () => {
       <section className="relative z-30">
         <div className="bg-secondary/30 px-4 pt-4 pb-1 md:hidden">
           <div className="max-w-7xl mx-auto text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            Filter by:
+            {t.inventoryPage.filterBy}
           </div>
         </div>
         
         <div className="sticky top-16 z-30 bg-secondary/30 backdrop-blur-md border-b border-border pb-4 pt-1 md:py-4 lg:py-8 px-4 md:px-6">
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center gap-3 md:gap-4">
             <div className="hidden md:block text-xs uppercase tracking-[0.2em] text-muted-foreground lg:mr-2">
-              Filter by:
+              {t.inventoryPage.filterBy}
             </div>
 
             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3 flex-1">
@@ -227,14 +231,14 @@ const Inventory = () => {
               onValueChange={(v) => setMainSort(v as MainSort)}
             >
               <SelectTrigger className="w-full md:w-[180px] h-[38px] md:h-10 text-xs md:text-sm rounded-sm bg-background border-border">
-                <SelectValue placeholder="Sort By" />
+                <SelectValue placeholder={t.inventoryPage.sortBy} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="stock-az">Stock # (A-Z)</SelectItem>
-                <SelectItem value="stock-za">Stock # (Z-A)</SelectItem>
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="newest">Year (Newest)</SelectItem>
-                <SelectItem value="oldest">Year (Oldest)</SelectItem>
+                <SelectItem value="stock-az">{t.inventoryPage.stockAz}</SelectItem>
+                <SelectItem value="stock-za">{t.inventoryPage.stockZa}</SelectItem>
+                <SelectItem value="featured">{t.inventoryPage.featured}</SelectItem>
+                <SelectItem value="newest">{t.inventoryPage.yearNewest}</SelectItem>
+                <SelectItem value="oldest">{t.inventoryPage.yearOldest}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -245,12 +249,12 @@ const Inventory = () => {
               }
             >
               <SelectTrigger className="w-full md:w-[200px] h-[38px] md:h-10 text-xs md:text-sm rounded-sm bg-background border-border">
-                <SelectValue placeholder="Price (Sort)" />
+                <SelectValue placeholder={t.inventoryPage.priceSort} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Price (Sort)</SelectItem>
-                <SelectItem value="high-low">Price (High to Low)</SelectItem>
-                <SelectItem value="low-high">Price (Low to High)</SelectItem>
+                <SelectItem value="any">{t.inventoryPage.priceSort}</SelectItem>
+                <SelectItem value="high-low">{t.inventoryPage.priceHighLow}</SelectItem>
+                <SelectItem value="low-high">{t.inventoryPage.priceLowHigh}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -261,15 +265,15 @@ const Inventory = () => {
               }
             >
               <SelectTrigger className="w-full md:w-[240px] h-[38px] md:h-10 text-xs md:text-sm rounded-sm bg-background border-border col-span-2 sm:col-span-1">
-                <SelectValue placeholder="Displacement (Sort)" />
+                <SelectValue placeholder={t.inventoryPage.dispSort} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Displacement (Sort)</SelectItem>
+                <SelectItem value="any">{t.inventoryPage.dispSort}</SelectItem>
                 <SelectItem value="high-low">
-                  Displacement (High to Low)
+                  {t.inventoryPage.dispHighLow}
                 </SelectItem>
                 <SelectItem value="low-high">
-                  Displacement (Low to High)
+                  {t.inventoryPage.dispLowHigh}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -279,7 +283,7 @@ const Inventory = () => {
                 checked={stockOnly}
                 onCheckedChange={(c) => setStockOnly(Boolean(c))}
               />
-              <span className="whitespace-nowrap">In stock only</span>
+              <span className="whitespace-nowrap">{t.inventoryPage.inStockOnly}</span>
             </label>
           </div>
 
@@ -289,7 +293,7 @@ const Inventory = () => {
               type="text"
               value={queryTerm}
               onChange={(e) => setQueryTerm(e.target.value)}
-              placeholder="Search chassis or model..."
+              placeholder={t.inventoryPage.searchPlaceholder}
               maxLength={60}
               className="w-full h-[38px] md:h-10 pl-9 pr-3 text-xs md:text-sm bg-background border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-bronze"
             />
@@ -301,7 +305,7 @@ const Inventory = () => {
       {/* Count */}
       <section className="py-6">
         <div className="max-w-7xl mx-auto px-6 mono text-xs text-muted-foreground tracking-wider uppercase">
-          Showing <span className="text-foreground font-bold">{visible.length}</span> vehicles
+          {t.inventoryPage.showing} <span className="text-foreground font-bold">{visible.length}</span> {t.inventoryPage.vehicles}
         </div>
       </section>
 
@@ -310,7 +314,7 @@ const Inventory = () => {
         <div className="max-w-7xl mx-auto px-6">
           {visible.length === 0 ? (
             <div className="py-24 text-center text-muted-foreground">
-              No vehicles match your filters.
+              {t.inventoryPage.noMatch}
             </div>
           ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -349,16 +353,15 @@ const Inventory = () => {
                               variant="outline"
                               className={`rounded-sm uppercase tracking-wider text-[10px] font-mono ${statusStyles[c.status]}`}
                             >
-                              {c.status}
+                              {getStatusLabel(c.status)}
                             </Badge>
                             <Badge
                               variant="outline"
                               className="rounded-sm uppercase tracking-wider text-[10px] font-mono bg-background/60 backdrop-blur-sm border-border text-foreground/80"
                             >
-                              {!c.grade ? '' : /^auction/i.test(c.grade) ? c.grade : `Auction Grade ${c.grade}`}
+                              {!c.grade ? '' : /^auction/i.test(c.grade) ? (language === 'ja' ? c.grade.replace(/Auction Grade /i, '評価点 ') : c.grade) : `${t.inventorySection.auctionGrade} ${c.grade}`}
                             </Badge>
                           </div>
-                          {/* Removed non-editable chassis overlay per user request */}
                         </div>
 
                         <div className="p-6">
@@ -373,7 +376,7 @@ const Inventory = () => {
                             </div>
                             <div className="text-right">
                               <div className="text-[10px] uppercase tracking-wider text-muted-foreground flex flex-col items-end">
-                                <span>Price {currency !== 'JPY' && '· Approx'}</span>
+                                <span>{t.inventorySection.price} {currency !== 'JPY' && t.inventorySection.priceApprox}</span>
                               </div>
                               <div className="font-display text-xl text-bronze">
                                 {convertPrice(c.priceJPY).formatted}
@@ -392,7 +395,7 @@ const Inventory = () => {
                               {c.displacementLabel}
                             </div>
                             <div className="mono text-[11px] text-muted-foreground tracking-wider uppercase">
-                              {c.stockNumber ? `Stock: ${c.stockNumber}` : ""}
+                              {c.stockNumber ? `${t.inventorySection.stock}: ${c.stockNumber}` : ""}
                             </div>
                           </div>
 
@@ -407,14 +410,14 @@ const Inventory = () => {
                               }}
                             >
                               <Info className="w-4 h-4 mr-2 hidden md:block" />
-                              View Details
+                              {t.inventorySection.viewDetails}
                             </Button>
                             {c.status === "SOLD" ? (
                               <Button
                                 disabled
                                 className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
                               >
-                                Sold
+                                {t.inventorySection.sold}
                               </Button>
                             ) : (
                               <Button
@@ -423,10 +426,10 @@ const Inventory = () => {
                               >
                                 <Link 
                                   to="/#contact"
-                                  state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
+                                  state={{ subject: c.stockNumber ? `${c.year} ${c.name} (${t.inventorySection.stock}: ${c.stockNumber})` : `${c.year} ${c.name}` }}
                                 >
                                   <Mail className="w-4 h-4 mr-2 hidden md:block" />
-                                  Enquire
+                                  {t.inventorySection.enquire}
                                 </Link>
                               </Button>
                             )}
@@ -456,7 +459,7 @@ const Inventory = () => {
           )}
           
           <div className="mt-8 text-sm text-foreground/60 italic">
-            *Converted prices are estimates based on daily rates. Final transaction in JPY.
+            {t.inventorySection.currencyDisclaimer}
           </div>
         </div>
       </section>
@@ -471,7 +474,7 @@ const Inventory = () => {
             <span className="font-display tracking-wider">JDM RETRO RIDES</span>
           </div>
           <div className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground text-center">
-            Nagoya · Japan · British-Owned · Est. 1994
+            {t.footer.tagline}
           </div>
           <div className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JDM Retro Rides

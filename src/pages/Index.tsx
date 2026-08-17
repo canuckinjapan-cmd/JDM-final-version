@@ -13,7 +13,6 @@ import {
   Cog,
   MapPin,
   ArrowRight,
-  Star,
   Phone,
   ZoomIn,
   Info,
@@ -23,19 +22,12 @@ import auctionLane from "@/assets/auction-lane.jpg";
 import SiteNav from "@/components/SiteNav";
 import ContactForm from "@/components/ContactForm";
 import FacebookIcon from "@/components/icons/FacebookIcon";
-import { inventory, resolveVehicleData, resolveVehicleImage } from "@/data/inventory";
+import { inventory, resolveVehicleImage } from "@/data/inventory";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import SlideshowModal from "@/components/SlideshowModal";
 import { VehicleDetailsOverlay } from "@/components/VehicleDetailsOverlay";
 import { 
-  db, 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  handleFirestoreError, 
-  OperationType,
   Vehicle,
   statusStyles,
   fetchVehicles as fetchVehiclesService,
@@ -46,35 +38,12 @@ import {
 
 const FACEBOOK_URL = "https://www.facebook.com/";
 
-const steps = [
-  {
-    n: "01",
-    icon: Search,
-    title: "Tell us what you want",
-    body: "Send your wish-list — chassis, year, budget. We confirm what's realistic and what to expect on the lanes.",
-  },
-  {
-    n: "02",
-    icon: ShieldCheck,
-    title: "We bid at the auctions",
-    body: "Our team is on the floor at USS, JU and TAA every week. Auction sheets translated, every car inspected in person.",
-  },
-  {
-    n: "03",
-    icon: Cog,
-    title: "Compliance & prep",
-    body: "Deregistration, export documents, JEVIC inspection, shipping — handled. You receive weekly photo updates.",
-  },
-  {
-    n: "04",
-    icon: Ship,
-    title: "Delivered to your door",
-    body: "RoRo or container to UK, Australia or your nearest port. We stay with the car until the keys are in your hand.",
-  },
-];
+const stepIcons = [Search, ShieldCheck, Cog, Ship];
+const featureIcons = [MapPin, ShieldCheck, Key];
 
 const Index = () => {
   const { convertPrice, currency } = useCurrency();
+  const { t, language } = useLanguage();
   const heroImgRef = useRef<HTMLImageElement | null>(null);
   const [scrollY, setScrollY] = useState(0);
 
@@ -146,6 +115,19 @@ const Index = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const getStatusLabel = (status: string) => {
+    if (language === 'ja') {
+      switch (status) {
+        case 'AVAILABLE': return '販売中';
+        case 'IN_TRANSIT': return '輸送中';
+        case 'SOURCING': return '仕入れ中';
+        case 'SOLD': return '売約済';
+        default: return status;
+      }
+    }
+    return status;
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
@@ -204,40 +186,69 @@ const Index = () => {
         <div className="absolute inset-0 bg-background/30" />
 
         <div className="relative max-w-7xl mx-auto px-6 pb-20 pt-20 md:pt-32 w-full">
-          <div className="max-w-3xl">
+          <div className={language === 'ja' ? "max-w-3xl lg:max-w-4xl xl:max-w-5xl" : "max-w-3xl"}>
             <div className="flex items-center gap-3 mb-6">
               <span className="h-px w-10 bg-bronze" />
               <span className="mono text-xs uppercase tracking-[0.3em] text-bronze">
-                Since 1994 · Nagoya, Japan
+                {t.hero.since}
               </span>
             </div>
-            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl leading-[0.9] mb-6">
-              30+ Years Inside <br />
-              Japan's Auctions. <br />
-              <span className="text-bronze">Shipped to your driveway.</span>
-            </h1>
-            <p className="text-lg text-foreground/80 max-w-xl mb-10">
-              British-run, Japan-based. We hand-source legendary JDM classics from USS, JU and
-              TAA — translated, inspected and exported to the UK, Australia and beyond.
-            </p>
-            <div className="flex flex-wrap gap-4">
+            {language === 'ja' ? (
+              <h1 className="font-sans font-bold tracking-tight mb-6 leading-[1.2] sm:leading-[1.18] lg:leading-[1.15] text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-[54px] xl:text-6xl">
+                {/* Desktop + Mobile/Tablet Landscape */}
+                <span className="hidden lg:inline landscape:inline">
+                  <span className="block whitespace-nowrap">30年以上の実績を誇る</span>
+                  <span className="block whitespace-nowrap">日本オークション直結輸出。</span>
+                  <span className="block whitespace-nowrap text-bronze">世界中のお客様のガレージへ。</span>
+                </span>
+                {/* Mobile/Tablet Portrait */}
+                <span className="inline lg:hidden landscape:hidden">
+                  <span className="block whitespace-nowrap">30年以上の実績を誇る</span>
+                  <span className="block whitespace-nowrap">日本オークション</span>
+                  <span className="block whitespace-nowrap">直結輸出。</span>
+                  <span className="block whitespace-nowrap text-bronze">世界中のお客様の</span>
+                  <span className="block whitespace-nowrap text-bronze">ガレージへ。</span>
+                </span>
+              </h1>
+            ) : (
+              <h1 className="font-display text-5xl sm:text-7xl md:text-8xl leading-[0.9] mb-6">
+                30+ Years Inside <br />
+                Japan's Auctions. <br />
+                <span className="text-bronze">Shipped to your driveway.</span>
+              </h1>
+            )}
+            {language === 'ja' ? (
+              <p className="text-[13px] xs:text-sm sm:text-base md:text-lg text-foreground/80 max-w-xl mb-5 sm:mb-8 md:mb-10 leading-snug sm:leading-relaxed">
+                <span className="hidden sm:inline landscape:inline">
+                  {t.hero.description}
+                </span>
+                <span className="inline sm:hidden landscape:hidden">
+                  名古屋を拠点とする英国人スペシャリスト。全国主要オートオークションから厳選したJDM名車を直接下見・査定し、世界各国へ確実にお届け。
+                </span>
+              </p>
+            ) : (
+              <p className="text-lg text-foreground/80 max-w-xl mb-10 leading-relaxed">
+                {t.hero.description}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-bronze hover:bg-primary/90 text-primary-foreground font-medium rounded-sm gap-2 h-12 px-8"
+                className="bg-bronze hover:bg-primary/90 text-primary-foreground font-medium rounded-sm gap-2 h-11 sm:h-12 px-5 sm:px-8 text-xs sm:text-sm"
               >
                 <Link to="/inventory">
-                  Browse Inventory <ArrowRight className="w-4 h-4" />
+                  {t.hero.browseInventory} <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-foreground/30 text-foreground hover:border-bronze hover:text-bronze hover:bg-bronze/10 rounded-sm h-12 px-8 gap-2 transition-colors"
+                className="border-foreground/30 text-foreground hover:border-bronze hover:text-bronze hover:bg-bronze/10 rounded-sm h-11 sm:h-12 px-5 sm:px-8 gap-2 text-xs sm:text-sm transition-colors"
               >
                 <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
-                  <FacebookIcon className="w-4 h-4" /> Facebook
+                  <FacebookIcon className="w-4 h-4" /> {t.hero.facebook}
                 </a>
               </Button>
             </div>
@@ -245,10 +256,10 @@ const Index = () => {
             {/* Trust strip */}
             <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl">
               {[
-                [<AnimatedNumber key="num1" value={30} suffix="+" />, "Years exporting"],
-                [<AnimatedNumber key="num2" value={1200} suffix="+" />, "Cars delivered"],
-                ["USS / JU", "Auction access"],
-                ["UK · AU", "Primary markets"],
+                [<AnimatedNumber key="num1" value={30} suffix="+" />, t.hero.yearsExporting],
+                [<AnimatedNumber key="num2" value={1200} suffix="+" />, t.hero.carsDelivered],
+                ["USS / JU", t.hero.auctionAccess],
+                ["UK · AU", t.hero.primaryMarkets],
               ].map(([k, v]) => (
                 <div key={v as string} className="border-l border-bronze/40 pl-3">
                   <div className="font-display text-3xl text-bronze">{k}</div>
@@ -260,7 +271,7 @@ const Index = () => {
         </div>
 
         <div className="absolute bottom-6 right-6 hidden md:flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-          <span>Scroll</span>
+          <span>{t.hero.scroll}</span>
           <span className="h-px w-12 bg-muted-foreground/50" />
         </div>
       </section>
@@ -268,22 +279,21 @@ const Index = () => {
       {/* INVENTORY */}
       <section id="inventory" className="py-24 sm:py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-14">
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <span className="h-px w-10 bg-bronze" />
                 <span className="mono text-xs uppercase tracking-[0.3em] text-bronze">
-                  Current Inventory
+                  {t.inventorySection.sectionTag}
                 </span>
               </div>
               <h2 className="font-display text-5xl md:text-6xl leading-none">
-                On the floor <br />
-                <span className="text-bronze">in Nagoya.</span>
+                {t.inventorySection.sectionHeading} <br />
+                <span className="text-bronze">{t.inventorySection.sectionHeadingHighlight}</span>
               </h2>
             </div>
             <p className="text-muted-foreground max-w-md">
-              A live, hand-picked selection. Every car personally inspected, with full auction
-              sheets and translated reports available on request.
+              {t.inventorySection.sectionDescription}
             </p>
           </div>
 
@@ -320,16 +330,15 @@ const Index = () => {
                           variant="outline"
                           className={`rounded-sm uppercase tracking-wider text-[10px] font-mono ${statusStyles[c.status]}`}
                         >
-                          {c.status}
+                          {getStatusLabel(c.status)}
                         </Badge>
                         <Badge
                           variant="outline"
                           className="rounded-sm uppercase tracking-wider text-[10px] font-mono bg-background/60 backdrop-blur-sm border-border text-foreground/80"
                         >
-                          {!c.grade ? '' : /^auction/i.test(c.grade) ? c.grade : `Auction Grade ${c.grade}`}
+                          {!c.grade ? '' : /^auction/i.test(c.grade) ? (language === 'ja' ? c.grade.replace(/Auction Grade /i, '評価点 ') : c.grade) : `${t.inventorySection.auctionGrade} ${c.grade}`}
                         </Badge>
                       </div>
-                      {/* Removed non-editable chassis overlay per user request */}
                     </div>
 
                     <div className="p-6">
@@ -340,7 +349,7 @@ const Index = () => {
                         </div>
                         <div className="text-right">
                           <div className="text-[10px] uppercase tracking-wider text-muted-foreground flex flex-col items-end">
-                            <span>Price {currency !== 'JPY' && '· Approx'}</span>
+                            <span>{t.inventorySection.price} {currency !== 'JPY' && t.inventorySection.priceApprox}</span>
                           </div>
                           <div className="font-display text-2xl text-bronze">{convertPrice(c.priceJPY).formatted}</div>
                         </div>
@@ -357,7 +366,7 @@ const Index = () => {
                           {c.displacementLabel}
                         </div>
                         <div className="mono text-[11px] text-muted-foreground tracking-wider uppercase col-span-1">
-                          {c.stockNumber ? `Stock: ${c.stockNumber}` : ""}
+                          {c.stockNumber ? `${t.inventorySection.stock}: ${c.stockNumber}` : ""}
                         </div>
                       </div>
 
@@ -372,14 +381,14 @@ const Index = () => {
                           }}
                         >
                           <Info className="w-4 h-4 mr-2 hidden md:block" />
-                          View Details
+                          {t.inventorySection.viewDetails}
                         </Button>
                         {c.status === "SOLD" ? (
                           <Button
                             disabled
                             className="flex-1 rounded-sm btn-sold-bronze cursor-not-allowed h-11 pointer-events-none font-mono uppercase tracking-widest text-xs"
                           >
-                            Sold
+                            {t.inventorySection.sold}
                           </Button>
                         ) : (
                           <Button
@@ -388,10 +397,10 @@ const Index = () => {
                           >
                             <Link 
                               to="/#contact"
-                              state={{ subject: c.stockNumber ? `${c.year} ${c.name} (Stock: ${c.stockNumber})` : `${c.year} ${c.name}` }}
+                              state={{ subject: c.stockNumber ? `${c.year} ${c.name} (${t.inventorySection.stock}: ${c.stockNumber})` : `${c.year} ${c.name}` }}
                             >
                               <Mail className="w-4 h-4 mr-2 hidden md:block" />
-                              Enquire
+                              {t.inventorySection.enquire}
                             </Link>
                           </Button>
                         )}
@@ -418,7 +427,7 @@ const Index = () => {
 
           <div className="mt-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="text-sm text-foreground/60 italic">
-              *Converted prices are estimates based on daily rates. Final transaction in JPY.
+              {t.inventorySection.currencyDisclaimer}
             </div>
             <Button
               asChild
@@ -427,7 +436,7 @@ const Index = () => {
               className="rounded-sm border-bronze text-bronze hover:bg-bronze hover:text-primary-foreground transition-colors gap-2 h-12 px-8"
             >
               <Link to="/inventory">
-                See all vehicles <ArrowRight className="w-4 h-4" />
+                {t.inventorySection.seeAllVehicles} <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </div>
@@ -440,33 +449,28 @@ const Index = () => {
           <div className="max-w-xl">
             <div className="flex items-center gap-3 mb-6">
               <span className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                About · Since 1994
+                {t.about.tag}
               </span>
             </div>
             <h2 className="font-display text-5xl md:text-6xl leading-tight mb-8">
-              A British specialist,<br /> <span className="text-bronze">rooted in Japan.</span>
+              {t.about.heading}<br /> <span className="text-bronze">{t.about.headingHighlight}</span>
             </h2>
           </div>
           <div className="max-w-xl space-y-6 text-foreground/80 leading-relaxed text-lg pt-2 lg:pt-12">
             <p>
-              We've been exporting cars from Japan since 1994. British-owned and based at the
-              auction floor, our access is what three decades of reputation buys: full membership
-              across USS, TAA, CAA, JU and more — and the relationships that get the right car, at the
-              right price, shipped on the right date.
+              {t.about.p1}
             </p>
             <p>
-              We don't stock a huge yard. We <em className="text-bronze not-italic">buy to order</em> — because the best cars for our clients
-              rarely sit on forecourts. Every vehicle is supplied with auction report, service history and
-              a landed-cost quote in GBP or AUD. No surprises.
+              {t.about.p2}
             </p>
             <div className="grid grid-cols-2 gap-8 pt-8 mt-8 border-t border-border">
               <div>
-                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-2">UK DELIVERY</div>
-                <div className="font-mono text-sm">Full RORO & container</div>
+                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-2">{t.about.statUkDelivery}</div>
+                <div className="font-mono text-sm">{t.about.statUkDeliveryVal}</div>
               </div>
               <div>
-                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-2">COMPLIANCE</div>
-                <div className="font-mono text-sm">Guided end-to-end</div>
+                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-2">{t.about.statCompliance}</div>
+                <div className="font-mono text-sm">{t.about.statComplianceVal}</div>
               </div>
             </div>
           </div>
@@ -485,22 +489,21 @@ const Index = () => {
             <div className="flex items-center gap-3 mb-4">
               <span className="h-px w-10 bg-bronze" />
               <span className="mono text-xs uppercase tracking-[0.3em] text-bronze">
-                The Process
+                {t.process.tag}
               </span>
             </div>
             <h2 className="font-display text-5xl md:text-6xl leading-none mb-6">
-              From a Tokyo lane <br />
-              <span className="text-bronze">to your garage.</span>
+              {t.process.heading} <br />
+              <span className="text-bronze">{t.process.headingHighlight}</span>
             </h2>
             <p className="text-muted-foreground text-lg">
-              You're not buying off a forecourt. You're hiring 30 years of Japanese-market
-              expertise to find, vet and ship the right car — without the guesswork.
+              {t.process.description}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-sm overflow-hidden border border-border">
-            {steps.map((s) => {
-              const Icon = s.icon;
+            {t.process.steps.map((s, idx) => {
+              const Icon = stepIcons[idx] || Search;
               return (
                 <div
                   key={s.n}
@@ -522,31 +525,18 @@ const Index = () => {
           </div>
 
           <div className="mt-20 grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: MapPin,
-                t: "On the ground in Japan",
-                b: "Office in Nagoya. We attend auctions in person — no remote middlemen.",
-              },
-              {
-                icon: ShieldCheck,
-                t: "Translated auction sheets",
-                b: "Every grade, every note. You see what we see, in plain English.",
-              },
-              {
-                icon: Key,
-                t: "Door-to-door logistics",
-                b: "Compliance, shipping and delivery handled end-to-end.",
-              },
-            ].map(({ icon: Icon, t, b }) => (
-              <div key={t} className="flex gap-4 p-6 border border-border rounded-sm bg-background/60">
-                <Icon className="w-6 h-6 text-bronze shrink-0 mt-1" />
-                <div>
-                  <div className="font-medium mb-1">{t}</div>
-                  <div className="text-sm text-muted-foreground">{b}</div>
+            {t.process.features.map((feat, idx) => {
+              const Icon = featureIcons[idx] || MapPin;
+              return (
+                <div key={feat.title} className="flex gap-4 p-6 border border-border rounded-sm bg-background/60">
+                  <Icon className="w-6 h-6 text-bronze shrink-0 mt-1" />
+                  <div>
+                    <div className="font-medium mb-1">{feat.title}</div>
+                    <div className="text-sm text-muted-foreground">{feat.body}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -557,116 +547,49 @@ const Index = () => {
           <div className="mb-16">
             <div className="flex items-center gap-3 mb-4">
               <span className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                Client Words
+                {t.testimonials.tag}
               </span>
             </div>
             <h2 className="font-display text-5xl md:text-6xl leading-tight">
-              Thirty years of driveways.
+              {t.testimonials.heading}
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
-            <div className="bg-background border border-border group overflow-hidden">
-              <div 
-                className="aspect-[4/3] overflow-hidden cursor-pointer"
-                onClick={() => openSlideshow([resolveVehicleImage("assets/1989-Nissan-GTR-wht.jpg")])}
-              >
-                <img 
-                  src={resolveVehicleImage("assets/1989-Nissan-GTR-wht.jpg")} 
-                  alt="1989 Skyline GT-R" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:duration-700 ease-out" 
-                />
-              </div>
-              <div className="p-8">
-                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-4">
-                  1989 Skyline GT-R
+            {t.testimonials.items.map((item, idx) => (
+              <div key={idx} className="bg-background border border-border group overflow-hidden flex flex-col">
+                <div 
+                  className="aspect-[4/3] overflow-hidden cursor-pointer"
+                  onClick={() => openSlideshow([resolveVehicleImage(item.image)])}
+                >
+                  <img 
+                    src={resolveVehicleImage(item.image)} 
+                    alt={item.car} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:duration-700 ease-out" 
+                  />
                 </div>
-                <p className="text-xl mb-8 leading-relaxed font-serif text-foreground/90">
-                  "Seamless. They found a Grade 4.5 R32 that exceeded my expectations. Communication through shipping was top-notch."
-                </p>
-                <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
-                  <span>Marcus Thorne</span>
-                  <span className="flex items-center gap-2">
-                    <img 
-                      src="https://flagcdn.com/w40/us.png" 
-                      alt="United States Flag" 
-                      className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
-                      referrerPolicy="no-referrer"
-                    />
-                    United States
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial 2 */}
-            <div className="bg-background border border-border group overflow-hidden">
-              <div 
-                className="aspect-[4/3] overflow-hidden cursor-pointer"
-                onClick={() => openSlideshow([resolveVehicleImage("assets/1994-Honda-Beat-red.jpg")])}
-              >
-                <img 
-                  src={resolveVehicleImage("assets/1994-Honda-Beat-red.jpg")} 
-                  alt="1994 Honda Beat" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ease-out" 
-                />
-              </div>
-              <div className="p-8">
-                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-4">
-                  1994 Honda Beat
-                </div>
-                <p className="text-xl mb-8 leading-relaxed font-serif text-foreground/90">
-                  "My first import. Detailed auction reports and all logistics in Japan handled for me — on the driveway in Manchester without a hitch."
-                </p>
-                <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
-                  <span>Elena Rodriguez</span>
-                  <span className="flex items-center gap-2">
-                    <img 
-                      src="https://flagcdn.com/w40/gb.png" 
-                      alt="United Kingdom Flag" 
-                      className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
-                      referrerPolicy="no-referrer"
-                    />
-                    United Kingdom
-                  </span>
+                <div className="p-8 flex flex-col flex-1">
+                  <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-4">
+                    {item.car}
+                  </div>
+                  <p className="text-xl mb-8 leading-relaxed font-serif text-foreground/90 flex-1">
+                    {item.quote}
+                  </p>
+                  <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
+                    <span>{item.author}</span>
+                    <span className="flex items-center gap-2">
+                      <img 
+                        src={`https://flagcdn.com/w40/${item.flagCode}.png`} 
+                        alt={`${item.country} Flag`} 
+                        className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
+                        referrerPolicy="no-referrer"
+                      />
+                      {item.country}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Testimonial 3 */}
-            <div className="bg-background border border-border group overflow-hidden">
-              <div 
-                className="aspect-[4/3] overflow-hidden cursor-pointer"
-                onClick={() => openSlideshow([resolveVehicleImage("assets/2018 Impressa WRX Sti blue.jpg")])}
-              >
-                <img 
-                  src={resolveVehicleImage("assets/2018 Impressa WRX Sti blue.jpg")} 
-                  alt="2018 WRX STI" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ease-out" 
-                />
-              </div>
-              <div className="p-8 flex flex-col h-[calc(100%-75%)]">
-                <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-4">
-                  2018 WRX STI
-                </div>
-                <p className="text-xl mb-8 leading-relaxed font-serif text-foreground/90">
-                  "Pristine STI via their auction access. Arrived in Melbourne exactly as described. Professional from first email to delivery."
-                </p>
-                <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
-                  <span>James Chen</span>
-                  <span className="flex items-center gap-2">
-                    <img 
-                      src="https://flagcdn.com/w40/au.png" 
-                      alt="Australia Flag" 
-                      className="w-4 h-2.5 object-cover rounded-[1px] border border-white/10 shadow-sm" 
-                      referrerPolicy="no-referrer"
-                    />
-                    Australia
-                  </span>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -678,16 +601,15 @@ const Index = () => {
             <div className="flex items-center gap-3 mb-4">
               <span className="h-px w-10 bg-bronze" />
               <span className="mono text-xs uppercase tracking-[0.3em] text-bronze">
-                Contact Us
+                {t.contact.tag}
               </span>
             </div>
             <h2 className="font-display text-5xl md:text-6xl leading-none mb-6">
-              Got a car <br />
-              <span className="text-bronze">in mind?</span>
+              {t.contact.heading} <br />
+              <span className="text-bronze">{t.contact.headingHighlight}</span>
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Tell us the chassis code and your budget. We'll come back within 24 hours with
-              what's on the lanes this week.
+              {t.contact.description}
             </p>
 
             <div className="space-y-4">
@@ -696,7 +618,7 @@ const Index = () => {
                 className="flex items-center gap-3 text-foreground/90 hover:text-bronze transition-colors"
               >
                 <Phone className="w-5 h-5 text-bronze" />
-                <span className="mono text-sm">+81 (0) 52-XXX-XXXX</span>
+                <span className="mono text-sm">{t.contact.phone}</span>
               </a>
               <a
                 href={FACEBOOK_URL}
@@ -705,10 +627,10 @@ const Index = () => {
                 className="flex items-center gap-3 text-foreground/90 hover:text-bronze transition-colors"
               >
                 <FacebookIcon className="w-5 h-5" />
-                <span className="text-sm">Follow us on Facebook</span>
+                <span className="text-sm">{t.contact.followFb}</span>
               </a>
               <div className="mono text-xs text-muted-foreground pt-2">
-                JST 09:00 — 18:00 · Replies in English
+                {t.contact.hours}
               </div>
             </div>
           </div>
@@ -729,7 +651,7 @@ const Index = () => {
             <span className="font-display tracking-wider">JDM RETRO RIDES</span>
           </div>
           <div className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground text-center">
-            Nagoya · Japan · British-Owned · Est. 1994
+            {t.footer.tagline}
           </div>
           <div className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JDM Retro Rides
