@@ -195,20 +195,10 @@ const Index = () => {
             </div>
             {language === 'ja' ? (
               <h1 className="font-sans font-bold tracking-tight mb-6 leading-[1.2] sm:leading-[1.18] lg:leading-[1.15] text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-[54px] xl:text-6xl">
-                {/* Desktop + Mobile/Tablet Landscape */}
-                <span className="hidden lg:inline landscape:inline">
-                  <span className="block whitespace-nowrap">30年以上の実績を誇る</span>
-                  <span className="block whitespace-nowrap">日本オークション直結輸出。</span>
-                  <span className="block whitespace-nowrap text-bronze">世界中のお客様のガレージへ。</span>
-                </span>
-                {/* Mobile/Tablet Portrait */}
-                <span className="inline lg:hidden landscape:hidden">
-                  <span className="block whitespace-nowrap">30年以上の実績を誇る</span>
-                  <span className="block whitespace-nowrap">日本オークション</span>
-                  <span className="block whitespace-nowrap">直結輸出。</span>
-                  <span className="block whitespace-nowrap text-bronze">世界中のお客様の</span>
-                  <span className="block whitespace-nowrap text-bronze">ガレージへ。</span>
-                </span>
+                <span className="block whitespace-nowrap">{t.hero.titlePart1}</span>
+                <span className="block whitespace-nowrap">日本のオークションから</span>
+                <span className="block whitespace-nowrap">直接仕入れ、輸出。</span>
+                <span className="block whitespace-nowrap text-bronze">{t.hero.titleHighlight}</span>
               </h1>
             ) : (
               <h1 className="font-display text-5xl sm:text-7xl md:text-8xl leading-[0.9] mb-6">
@@ -219,12 +209,7 @@ const Index = () => {
             )}
             {language === 'ja' ? (
               <p className="text-[13px] xs:text-sm sm:text-base md:text-lg text-foreground/80 max-w-xl mb-5 sm:mb-8 md:mb-10 leading-snug sm:leading-relaxed">
-                <span className="hidden sm:inline landscape:inline">
-                  {t.hero.description}
-                </span>
-                <span className="inline sm:hidden landscape:hidden">
-                  名古屋を拠点とする英国人スペシャリスト。全国主要オートオークションから厳選したJDM名車を直接下見・査定し、世界各国へ確実にお届け。
-                </span>
+                {t.hero.description}
               </p>
             ) : (
               <p className="text-lg text-foreground/80 max-w-xl mb-10 leading-relaxed">

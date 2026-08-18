@@ -351,7 +351,7 @@ export const translations: Record<Language, Translations> = {
   },
   ja: {
     nav: {
-      logoSubtitle: "1994年創業 · 英国人オーナー直営",
+      logoSubtitle: "1994年創業 · 英国人オーナー経営",
       home: "ホーム",
       inventory: "在庫車両",
       about: "当社について",
@@ -363,22 +363,22 @@ export const translations: Record<Language, Translations> = {
     hero: {
       since: "1994年創業 · 愛知県名古屋市",
       titlePart1: "30年以上の実績を誇る",
-      titlePart2: "日本オークション直結輸出。",
+      titlePart2: "日本のオークションから直接仕入れ、輸出。",
       titleHighlight: "世界中のお客様のガレージへ。",
       description: "名古屋を拠点とする英国人スペシャリスト。USS、JU、TAAをはじめとする全国の主要オートオークションから選りすぐりの名車・JDMクラシックを直接下見・査定し、イギリス、オーストラリアをはじめ世界各国へ確実に輸出・お届けいたします。",
       browseInventory: "在庫車両を見る",
       facebook: "Facebook",
-      yearsExporting: "輸出実績（年）",
-      carsDelivered: "累計成約台数",
+      yearsExporting: "輸出年数",
+      carsDelivered: "累計納車台数",
       auctionAccess: "主要オークション会員",
       primaryMarkets: "主要輸出先国",
       scroll: "スクロール",
     },
     inventorySection: {
       sectionTag: "現地在庫・仕入れ車両",
-      sectionHeading: "名古屋ヤード",
-      sectionHeadingHighlight: "現地厳選ストック",
-      sectionDescription: "専任スタッフが1台ずつ現車確認・査定を行った厳選車両。出品票の日本語・英語解説や詳細な状態確認レポートもご案内いたします。",
+      sectionHeading: "名古屋発",
+      sectionHeadingHighlight: "厳選在庫",
+      sectionDescription: "専任スタッフが1台ずつ現車確認・査定を行った厳選車両。出品票の翻訳・解説や、詳細な状態確認レポートもご用意しています。",
       priceApprox: "· 概算",
       price: "参考価格",
       viewDetails: "詳細を見る",
@@ -394,8 +394,8 @@ export const translations: Record<Language, Translations> = {
       heading: "日本に根差した、",
       headingHighlight: "英国人JDMスペシャリスト。",
       p1: "1994年の創業以来、日本全国のオートオークションから世界各地へ高品質なJDMスポーツカー・名車を輸出し続けてきました。名古屋の自社拠点をベースに、USS、TAA、CAA、JUなど全国の主要オークション正規会員資格を保有。30年にわたり培った強固なネットワークと知見により、確かなコンディションの車両を適正価格で仕入れ、確実なスケジュールで手配いたします。",
-      p2: "過剰な在庫を持たず、お客様一人ひとりのご要望に応じた「オーダーメイド買い付け」を主軸としています。真に状態の良いクラシックカーは、店頭に並ぶ前のオークション会場で見極める必要があるためです。すべての車両に出品票の正確な解説、整備履歴、現地諸費用を含めた明確なお見積りをご提示いたします。不透明な追加費用は一切ありません。",
-      statUkDelivery: "世界各国への海上輸送",
+      p2: "過剰な在庫を持たず、お客様一人ひとりのご要望に応じた「オーダーメイド買い付け」を主軸としています。真に状態の良いクラシックカーは、店頭に並ぶ前のオークション会場で見極める必要があるためです。GBPまたはAUDで、現地諸費用を含めた明確なお見積りをご提示いたします。不透明な追加費用は一切ありません。",
+      statUkDelivery: "英国への海上輸送",
       statUkDeliveryVal: "Ro-Ro船・海上コンテナ便対応",
       statCompliance: "輸出前点検・通関手続き",
       statComplianceVal: "書類作成から登録まで完全サポート",
@@ -448,7 +448,7 @@ export const translations: Record<Language, Translations> = {
       items: [
         {
           car: "1989年式 スカイライン GT-R",
-          quote: "「非常にスムーズな取引でした。希望以上の極上コンディション（評価点4.5）のR32を見つけていただき、船積みまでの進捗連絡も迅速で安心できました。」",
+          quote: "「非常にスムーズな取引でした。期待以上の極上コンディションのR32を見つけていただき、船積みまでの進捗連絡も迅速で安心できました。」",
           author: "Marcus Thorne",
           country: "アメリカ",
           flagCode: "us",
@@ -478,7 +478,7 @@ export const translations: Record<Language, Translations> = {
       headingHighlight: "ご希望の条件はございますか？",
       description: "希望車種、型式、ご予算などをお気軽にお知らせください。今週のオークション出品予定や相場動向を確認し、24時間以内にご案内いたします。",
       hours: "日本時間 09:00 〜 18:00 · 日本語・英語対応",
-      followFb: "Facebook公式ページ",
+      followFb: "Facebook公式ページはこちら",
       phone: "+81 (0) 52-XXX-XXXX",
       form: {
         name: "お名前",
@@ -502,7 +502,7 @@ export const translations: Record<Language, Translations> = {
     inventoryPage: {
       tag: "車両ラインナップ",
       title: "現地在庫・",
-      titleHighlight: "取扱車両一覧",
+      titleHighlight: "過去の在庫車両",
       description: "USS、JU、TAAなど日本全国のオートオークションから厳選。全車両を会場で直接下見・査定しております。出品票の解説やコンディション確認もお気軽にご相談ください。",
       filterBy: "絞り込み:",
       sortBy: "並び順",
@@ -517,7 +517,7 @@ export const translations: Record<Language, Translations> = {
       dispSort: "排気量順",
       dispHighLow: "排気量が多い順",
       dispLowHigh: "排気量が少ない順",
-      inStockOnly: "販売中のみ",
+      inStockOnly: "在庫ありのみ",
       searchPlaceholder: "型式・車種名で検索...",
       showing: "表示中:",
       vehicles: "台",
@@ -542,7 +542,7 @@ export const translations: Record<Language, Translations> = {
       stock: "車両ID",
     },
     footer: {
-      tagline: "愛知県名古屋市 · 英国人オーナー直営 · 1994年創業",
+      tagline: "愛知県名古屋市 · 英国人オーナー経営 · 1994年創業",
     },
   },
 };

@@ -36,15 +36,32 @@ const SiteNav = () => {
   return (
     <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
+        <Link 
+          to="/" 
+          onClick={() => {
+            if (location.pathname === '/') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
+          className="group relative flex items-center gap-2 shrink-0 py-1"
+        >
           <div className="w-8 h-8 rounded-sm gradient-bronze flex items-center justify-center font-display text-primary-foreground text-lg shrink-0">
             JDM
           </div>
           <div className="leading-tight shrink-0">
             <div className="font-display text-base sm:text-lg tracking-wider whitespace-nowrap">JDM RETRO RIDES</div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden sm:block">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden sm:block md:portrait:hidden">
               {t.nav.logoSubtitle}
             </div>
+          </div>
+
+          {/* Hover Tooltip Box */}
+          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2.5 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 z-50 whitespace-nowrap rounded-[4px] border border-[#f97316] bg-white px-2.5 py-1 shadow-md">
+            {/* Triangular arrow pointer */}
+            <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-t border-l border-[#f97316] rotate-45" />
+            <span className="relative z-10 font-mono text-[11px] font-semibold tracking-wide text-black">
+              {language === 'ja' ? 'トップへ戻る' : 'RETURN TO TOP'}
+            </span>
           </div>
         </Link>
 
