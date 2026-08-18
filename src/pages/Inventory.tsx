@@ -474,7 +474,17 @@ const Inventory = () => {
             <span className="font-display tracking-wider">JDM RETRO RIDES</span>
           </div>
           <div className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground text-center">
-            {t.footer.tagline}
+            {language === 'ja' ? (
+              <>
+                <span className="hidden md:portrait:inline">愛知県名古屋市 · 1994年創業</span>
+                <span className="inline md:portrait:hidden">{t.footer.tagline}</span>
+              </>
+            ) : (
+              <>
+                <span className="hidden md:portrait:inline">Nagoya · Japan · Est. 1994</span>
+                <span className="inline md:portrait:hidden">{t.footer.tagline}</span>
+              </>
+            )}
           </div>
           <div className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JDM Retro Rides

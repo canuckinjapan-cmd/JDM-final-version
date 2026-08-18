@@ -50,7 +50,7 @@ const SiteNav = () => {
           </div>
           <div className="leading-tight shrink-0">
             <div className="font-display text-base sm:text-lg tracking-wider whitespace-nowrap">JDM RETRO RIDES</div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden sm:block md:portrait:hidden">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden sm:block">
               {t.nav.logoSubtitle}
             </div>
           </div>
