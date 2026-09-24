@@ -202,7 +202,11 @@ const Inventory = () => {
               {t.inventoryPage.tag}
             </span>
           </div>
-          <h1 className="font-display text-5xl md:text-7xl leading-none mb-4">
+          <h1 className={`font-display leading-none mb-4 ${
+            language === 'ja'
+              ? 'text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-7xl'
+              : 'text-5xl md:text-7xl'
+          }`}>
             {t.inventoryPage.title} <span className="text-bronze">{t.inventoryPage.titleHighlight}</span>
           </h1>
           <p className="text-muted-foreground max-w-2xl">

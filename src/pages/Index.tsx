@@ -272,7 +272,11 @@ const Index = () => {
                   {t.inventorySection.sectionTag}
                 </span>
               </div>
-              <h2 className="font-display text-5xl md:text-6xl leading-none">
+              <h2 className={`font-display leading-none ${
+                language === 'ja'
+                  ? 'text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-6xl'
+                  : 'text-5xl md:text-6xl'
+              }`}>
                 {t.inventorySection.sectionHeading} <br />
                 <span className="text-bronze">{t.inventorySection.sectionHeadingHighlight}</span>
               </h2>
@@ -437,11 +441,19 @@ const Index = () => {
                 {t.about.tag}
               </span>
             </div>
-            <h2 className="font-display text-5xl md:text-6xl leading-tight mb-8">
+            <h2 className={`font-display leading-tight mb-8 ${
+              language === 'ja'
+                ? 'text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-6xl'
+                : 'text-5xl md:text-6xl'
+            }`}>
               {t.about.heading}<br /> <span className="text-bronze">{t.about.headingHighlight}</span>
             </h2>
           </div>
-          <div className="max-w-xl space-y-6 text-foreground/80 leading-relaxed text-lg pt-2 lg:pt-12">
+          <div className={`max-w-xl text-foreground/80 pt-2 lg:pt-12 ${
+            language === 'ja'
+              ? 'space-y-4 sm:space-y-6 text-sm sm:text-base md:text-lg leading-relaxed sm:leading-relaxed'
+              : 'space-y-6 text-base sm:text-lg leading-relaxed'
+          }`}>
             <p>
               {t.about.p1}
             </p>
@@ -477,7 +489,11 @@ const Index = () => {
                 {t.process.tag}
               </span>
             </div>
-            <h2 className="font-display text-5xl md:text-6xl leading-none mb-6">
+            <h2 className={`font-display leading-none mb-6 ${
+              language === 'ja'
+                ? 'text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-6xl'
+                : 'text-5xl md:text-6xl'
+            }`}>
               {t.process.heading} <br />
               <span className="text-bronze">{t.process.headingHighlight}</span>
             </h2>
@@ -535,7 +551,11 @@ const Index = () => {
                 {t.testimonials.tag}
               </span>
             </div>
-            <h2 className="font-display text-5xl md:text-6xl leading-tight">
+            <h2 className={`font-display leading-tight ${
+              language === 'ja'
+                ? 'text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-6xl'
+                : 'text-5xl md:text-6xl'
+            }`}>
               {t.testimonials.heading}
             </h2>
           </div>
@@ -553,11 +573,15 @@ const Index = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:duration-700 ease-out" 
                   />
                 </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-4">
+                <div className={`flex flex-col flex-1 ${language === 'ja' ? 'p-5 sm:p-8' : 'p-8'}`}>
+                  <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground mb-3 sm:mb-4">
                     {item.car}
                   </div>
-                  <p className="text-xl mb-8 leading-relaxed font-serif text-foreground/90 flex-1">
+                  <p className={`flex-1 ${
+                    language === 'ja'
+                      ? 'text-xs sm:text-sm md:text-base mb-5 sm:mb-6 leading-relaxed font-sans text-foreground/90'
+                      : 'text-sm sm:text-base md:text-lg mb-6 leading-relaxed font-serif text-foreground/90'
+                  }`}>
                     {item.quote}
                   </p>
                   <div className="flex items-center justify-between text-xs tracking-wider text-muted-foreground mono mt-auto uppercase">
@@ -589,7 +613,11 @@ const Index = () => {
                 {t.contact.tag}
               </span>
             </div>
-            <h2 className="font-display text-5xl md:text-6xl leading-none mb-6">
+            <h2 className={`font-display leading-none mb-6 ${
+              language === 'ja'
+                ? 'text-[24px] xs:text-[27px] sm:text-4xl md:text-5xl lg:text-6xl'
+                : 'text-5xl md:text-6xl'
+            }`}>
               {t.contact.heading} <br />
               <span className="text-bronze">{t.contact.headingHighlight}</span>
             </h2>
