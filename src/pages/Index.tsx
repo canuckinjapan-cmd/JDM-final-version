@@ -262,7 +262,24 @@ const Index = () => {
       </section>
 
       {/* INVENTORY */}
-      <section id="inventory" className="py-24 sm:py-32 bg-background">
+      <section id="inventory" className="pt-6 sm:pt-8 pb-24 sm:pb-32 bg-background">
+        {/* Concept Disclaimer Banner */}
+        <div className="w-full bg-[#181513] border-t border-b border-border py-2 sm:py-2.5 px-6 mb-8 sm:mb-10 text-center">
+          <div className="max-w-4xl mx-auto leading-normal text-xs sm:text-sm">
+            {language === 'ja' ? (
+              <p className="text-foreground/80">
+                <span className="font-bold text-bronze">提案コンセプト</span>{' '}
+                DanBurgess.comがポートフォリオ用に制作したコンセプトです。実際のクライアント案件ではありません。
+              </p>
+            ) : (
+              <p className="text-foreground/80">
+                <span className="font-bold text-bronze">Proposed Website Concept</span>{' '}
+                A concept created by DanBurgess.com for portfolio purposes. Not a commissioned client project.
+              </p>
+            )}
+          </div>
+        </div>
+
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-14">
             <div>
