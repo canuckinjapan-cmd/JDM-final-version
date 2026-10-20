@@ -7,6 +7,8 @@ import { auth, checkIsAdmin } from "@/lib/firebase";
 import { useCurrency, CurrencyCode } from "@/contexts/CurrencyContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+import logoSvg from "@/assets/JDM-Retro-Rides-logo03.svg";
+
 const CURRENCIES: CurrencyCode[] = ['GBP', 'AUD', 'JPY', 'USD'];
 
 const SiteNav = () => {
@@ -45,9 +47,11 @@ const SiteNav = () => {
           }}
           className="group relative flex items-center gap-2 shrink-0 py-1"
         >
-          <div className="w-8 h-8 rounded-sm gradient-bronze flex items-center justify-center font-display text-primary-foreground text-lg shrink-0">
-            JDM
-          </div>
+          <img
+            src={logoSvg}
+            alt="JDM Retro Rides"
+            className="w-8 h-8 rounded-sm shrink-0 object-cover"
+          />
           <div className="leading-tight shrink-0">
             <div className="font-display text-base sm:text-lg tracking-wider whitespace-nowrap">JDM RETRO RIDES</div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden sm:block">
