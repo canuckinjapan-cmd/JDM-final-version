@@ -154,16 +154,58 @@
   }
 
   .animate-car-silhouette {
-    animation: carSilhouetteDrive 6s linear infinite;
+    /* Mobile (< 768px): 4s crossing + 1s delay = 5s total */
+    animation: carSilhouetteDriveMobile 5s linear infinite;
     will-change: transform;
+  }
+
+  @media (min-width: 768px) {
+    .animate-car-silhouette {
+      /* Tablet (768px - 1023px): 5s crossing + 1s delay = 6s total */
+      animation: carSilhouetteDriveTablet 6s linear infinite;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .animate-car-silhouette {
+      /* Desktop (>= 1024px): 6s crossing + 1s delay = 7s total */
+      animation: carSilhouetteDriveDesktop 7s linear infinite;
+    }
   }
 }
 
-@keyframes carSilhouetteDrive {
+/* Mobile: 4s drive + 1s hold off-screen */
+@keyframes carSilhouetteDriveMobile {
+  0% {
+    transform: translateX(calc(100vw + 60px));
+  }
+  80% {
+    transform: translateX(calc(-100% - 140px));
+  }
+  100% {
+    transform: translateX(calc(-100% - 140px));
+  }
+}
+
+/* Tablet: 5s drive + 1s hold off-screen */
+@keyframes carSilhouetteDriveTablet {
   0% {
     transform: translateX(calc(100vw + 60px));
   }
   83.33% {
+    transform: translateX(calc(-100% - 140px));
+  }
+  100% {
+    transform: translateX(calc(-100% - 140px));
+  }
+}
+
+/* Desktop: 6s drive + 1s hold off-screen */
+@keyframes carSilhouetteDriveDesktop {
+  0% {
+    transform: translateX(calc(100vw + 60px));
+  }
+  85.71% {
     transform: translateX(calc(-100% - 140px));
   }
   100% {
