@@ -20,6 +20,7 @@ import {
 import heroImg from "@/assets/hero-jdm.jpg";
 import auctionLane from "@/assets/auction-lane.jpg";
 import logoSvg from "@/assets/JDM-Retro-Rides-logo03.svg";
+import carSilhouette from "@/assets/240Z-orange-sihouette.svg";
 import SiteNav from "@/components/SiteNav";
 import ContactForm from "@/components/ContactForm";
 import FacebookIcon from "@/components/icons/FacebookIcon";
@@ -47,6 +48,8 @@ const Index = () => {
   const { t, language } = useLanguage();
   const heroImgRef = useRef<HTMLImageElement | null>(null);
   const [scrollY, setScrollY] = useState(0);
+  const [isSectionVisible, setIsSectionVisible] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   const [slideshowImages, setSlideshowImages] = useState<string[]>([]);
   const [slideshowOpen, setSlideshowOpen] = useState(false);
@@ -111,9 +114,28 @@ const Index = () => {
 
   // Subtle parallax on the hero background image
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
+    const onScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Monitor visibility of the disclaimer banner section to start right away when scrolled into view
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSectionVisible(entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "60px 0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const getStatusLabel = (status: string) => {
@@ -265,8 +287,23 @@ const Index = () => {
       {/* INVENTORY */}
       <section id="inventory" className="pt-6 sm:pt-8 pb-24 sm:pb-32 bg-background">
         {/* Concept Disclaimer Banner */}
-        <div className="w-full bg-[#181513] border-t border-b border-border py-2 sm:py-2.5 px-6 mb-8 sm:mb-10 text-center">
-          <div className="max-w-4xl mx-auto leading-normal text-xs sm:text-sm">
+        <div
+          ref={bannerRef}
+          className="w-full bg-[#181513] border-t border-b border-border py-2 sm:py-2.5 px-6 mb-8 sm:mb-10 text-center relative overflow-hidden"
+        >
+          {/* Animated Background Car Silhouette */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 flex items-center">
+            {isSectionVisible && (
+              <img
+                src={carSilhouette}
+                alt=""
+                aria-hidden="true"
+                className="animate-car-silhouette h-5 sm:h-6 md:h-7 lg:h-8 max-h-[80%] w-auto select-none pointer-events-none opacity-85"
+              />
+            )}
+          </div>
+
+          <div className="relative z-10 max-w-4xl mx-auto leading-normal text-xs sm:text-sm">
             {language === 'ja' ? (
               <p className="text-foreground/80">
                 <span className="font-bold text-bronze">提案コンセプト</span>{' '}
